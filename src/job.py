@@ -1,83 +1,115 @@
 from __future__ import annotations
+from dataclasses import dataclass
+from enum import Enum, auto
 
 
+class JobId(Enum):
+    WARRIOR = auto()
+    WIZARD = auto()
+    ROGUE = auto()
+    PALADIN = auto()
+    PRIEST = auto()
+    SCAVENGER = auto()
+    LIBRARIAN = auto()
+    LICH = auto()
+    PROSPECTOR = auto()
+    CRAFTSMAN = auto()
+    LEE = auto()
+    GUARD = auto()
+    CULTIST = auto()
+    BARBARIAN = auto()
+    SPIRITER = auto()
+    BEASTMASTER = auto()
+    ALCHEMIST = auto()
+    GAMBLER = auto()
+
+
+@dataclass
 class Job:
-    def __init__(self,
-                 name: str,
-                 description: str | list[str],
-                 bonus_st: int = 0,
-                 bonus_mp: int = 0,
-                 bonus_at: int = 0,
-                 bonus_ep: int = 0,
-                 alignment: str = None,
-                 bonus_faith: int = 0):
-        self.name = name
-        self.description = description
-        self.st = 100 + bonus_st
-        self.mp = 50 + bonus_mp
-        self.at = 1 + bonus_at
-        self.ep = 1 + bonus_ep
-        self.gold = 50
-        self.alignment = alignment
-        self.faith = bonus_faith
+    name: str
+    description: str
+    st: int = 0
+    mp: int = 0
+    at: int = 0
+    ep: int = 0
+    gold: int = 0
+    alignment: str = None
+    faith: int = 0
+
+    def __post_init__(self):
+        self.st += 100
+        self.mp += 50
+        self.at += 1
+        self.ep += 1
+        self.gold += 50
 
 
 JOBS = {
-    'warrior': Job('Warrior', [
-        'Made for combat',
+    JobId.WARRIOR: Job(
+        'Warrior',
+        'Made for combat\n'
         'Naturally grows stronger each round',
-    ], bonus_at=2, bonus_st=15),
-    'wizard': Job('Wizard', [
-        'Made for casting spells',
+        at=2, st=15),
+    JobId.WIZARD: Job(
+        'Wizard',
+        'Made for casting spells\n'
         'Learn new spells each round',
-    ], bonus_mp=20),
-    'rogue': Job('Rogue', [
-        'Steal for profit',
-        'Shopkeepers hate them',
-    ]),
-    'paladin': Job('Paladin', 'Upholder of the law and bane of the undead',
-                   bonus_ep=2, bonus_st=25),
-    'priest': Job('Priest', [
-        'Made for healing',
-        'Helping others earns rewards'
-    ], alignment='good', bonus_faith=3),
-    'scavenger': Job('Scavenger', [
-        'Find items and coin in the wild',
-        'Some shopkeepers hate them',
-    ]),
-    'librarian': Job('Librarian', 'Bookworm', bonus_mp=30),
-    'lich': Job('Lich', [
-        'Summoner of minions',
+        mp=20),
+    JobId.ROGUE: Job(
+        'Rogue',
+        'Steal for profit\n'
+        'Shopkeepers hate them'),
+    JobId.PALADIN: Job(
+        'Paladin',
+        'Upholder of the law and bane of the undead',
+        ep=2, st=25),
+    JobId.PRIEST: Job(
+        'Priest',
+        'Made for healing\n'
+        'Helping others earns rewards',
+        alignment='good', faith=3),
+    JobId.SCAVENGER: Job(
+        'Scavenger',
+        'Find items and coin in the wild\n'
+        'Some shopkeepers hate them'),
+    JobId.LIBRARIAN: Job('Librarian', 'Bookworm', mp=30),
+    JobId.LICH: Job(
+        'Lich',
+        'Summoner of minions\n'
         'Suffers no penalty upon fainting',
-    ], alignment='evil'),
-    'prospector': Job('Prospector', 'Made for mining'),
-    'craftsman': Job('Craftsman', [
-        'Can craft their own items',
-        'Some shopkeepers hate them',
-    ]),
-    'lee': Job('Lee', 'Pacifist, wins battles by surviving long enough'),
-    'guard': Job('Guard', [
-        'Member of the guild',
-        'Better and cheaper skills'
-    ]),
-    'cultist': Job('Tickle Cultist', [
-        'Mess with your opponents!',
-        'Players can opt to become a Tickle Cultist at any point',
-        'at the cost of losing access to everything from previous class'
-    ], bonus_mp=10, alignment='evil'),
-    'barbarian': Job('Barbarian', [
-        'Rage is your only friend',
-        'Unable to use ranged weapons or cast spells'
-    ], bonus_st=30, bonus_at=3),
-    'spiriter': Job('Spiriter', [
-        'Use the power of spirits to change your fate',
-        'Or your oponents\'!'
-    ]),
-    'beastmaster': Job('Beastmaster',
-                       'Tame defeated beasts to enlist them into your cause'),
-    'alchemist': Job('Alchemist', [
-        'Craft better potions',
-        'Shopkeepers hate them'
-    ], bonus_mp=10),
-    'gambler': Job('Gambler', 'Risk taker, double or nothing'),
+        alignment='evil'),
+    JobId.PROSPECTOR: Job('Prospector', 'Made for mining'),
+    JobId.PROSPECTOR: Job(
+        'Craftsman',
+        'Can craft their own items\n'
+        'Some shopkeepers hate them'),
+    JobId.LEE: Job('Lee', 'Pacifist, wins battles by surviving long enough'),
+    JobId.GUARD: Job(
+        'Guard',
+        'Member of the guild\n'
+        'Better and cheaper skills'),
+    JobId.CULTIST: Job(
+        'Tickle Cultist',
+        'Mess with your opponents!\n'
+        'Players can opt to become a Tickle Cultist at any point\n'
+        'at the cost of losing access to everything from previous class',
+        mp=10, alignment='evil'),
+    JobId.BARBARIAN: Job(
+        'Barbarian',
+        'Rage is your only friend\n'
+        'Unable to use ranged weapons or cast spells',
+        st=30, at=3),
+    JobId.SPIRITER: Job(
+        'Spiriter',
+        'Use the power of spirits to change your fate\n'
+        'Or your oponents\'!'),
+    JobId.BEASTMASTER: Job(
+        'Beastmaster',
+        'Tame defeated beasts to enlist them into your cause'),
+    JobId.ALCHEMIST: Job(
+        'Alchemist',
+        'Craft better potions\n'
+        'Shopkeepers hate them',
+        mp=10),
+    JobId.GAMBLER: Job('Gambler', 'Risk taker, double or nothing'),
 }

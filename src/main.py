@@ -1,15 +1,13 @@
 from __future__ import annotations
 from abc import ABC
+from typing import Callable
 from dataclasses import dataclass, field
 from enum import Enum, auto
-
 import sys
 import pygame
+
 from job import JOBS, JobId
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Callable
 
 WIN_WIDTH = 1280
 WIN_HEIGHT = 720

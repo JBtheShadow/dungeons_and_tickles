@@ -1,7 +1,10 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
 from enum import Enum, auto
-from random import choice, randint
+
+from helpers import Dice
+from enemy import Enemy, EnemyAbility, EnemyAbilityId, ModifierId
+from reward import Reward, RewardId
+from trap import Trap, TrapType
 
 
 class EncounterId(Enum):
@@ -29,222 +32,11 @@ class EncounterId(Enum):
     TREASURE_ROOM = auto()
 
 
-class ModifierId(Enum):
-    UNNATURALLY_TICKLISH = auto()
-    TOUGH = auto()
-    BIG = auto()
-    MISCHIEVOUS = auto()
-    BLESSED_BY_LAUGHTER = auto()
-    CURSED = auto()
-
-
-class EnemyAbilityId(Enum):
-    ALL_DAMAGE_TAKEN_SET_TO_1 = auto()
-    DAMAGE_EVERY_X_TURNS = auto()
-    FAINT_IN_X_TURNS = auto()
-    IMMUNE_EVERY_X_TURNS = auto()
-    FIXED_DAMAGE_EVERY_X_HITS = auto()
-    HEAL_ST_EVERY_X_HITS = auto()
-    CAST_SPELL_EVERY_X_TURNS = auto()
-    FIXED_DAMAGE_ON_PLAYER_MISS = auto()
-    HEAL_EP_EVERY_X_TURNS = auto()
-    DAMAGE_AFTER_X_TURNS_ON_HIT = auto()
-    CHANCE_TO_EVADE = auto()
-    INFLICT_STATUS_ON_HIT = auto()
-
-
-class StatusId(Enum):
-    LGI = auto()  # Laughing Gas Intoxication
-    TS = auto()   # Ticklish Sensations
-    REGEN = auto()
-    LRA = auto()  # Laugh Resist Aura
-    EVADE = auto()
-    BLIND = auto()
-    WEAKEN = auto()
-    STRENGTHEN = auto()
-
-
-@dataclass
-class Dice:
-    number: int
-    sides: int
-    mod: int = 0
-
-    def roll(self):
-        rolls = [
-            randint(1, self.sides) for _ in range(self.number)
-        ]
-        return sum(rolls) + self.mod, rolls
-
-
-@dataclass
-class EnemyAbility:
-    ability_id: EnemyAbilityId
-    dmg_dice: Dice = None
-    status_id: StatusId = None
-    chance_dice: Dice = None
-    turns: int = None
-    dmg: int = None
-    heal: int = None
-    hits: int = None
-    target: int = None
-    level: int = None
-
-
-@dataclass
-class Enemy:
-    name: str
-    max_st: int = None
-    max_ep: int = 0
-    dmg: int = None
-    modifier_id: ModifierId = None
-    trinket_id: TrinketId = None
-    abilities: list[EnemyAbility] = None
-    level: int = 0
-    gold: int = 50
-
-    st: int = field(init=False)
-    ep: int = field(init=False)
-
-    def __post_init__(self):
-        self.abilities = self.abilities or []
-        one_dmg = EnemyAbilityId.ALL_DAMAGE_TAKEN_SET_TO_1 in self.abilities
-
-        # Level
-        if self.level:
-            self.max_st += (10 if not one_dmg else 1) * self.level
-            self.dmg += 10 * self.level
-
-            faint_abilities = [
-                x for x in self.abilities
-                if x.ability_id == EnemyAbilityId.FAINT_IN_X_TURNS
-            ]
-            if faint_abilities:
-                faint_abilities[0].turns += self.level
-
-        # Modifier
-        if not self.modifier_id and self.level:
-            self.modifier_id = choice(list(ModifierId))
-
-        if self.modifier_id == ModifierId.UNNATURALLY_TICKLISH:
-            self.name = 'Unnaturally Ticklish ' + self.name
-            self.max_st -= 5 if not one_dmg else 1
-        if self.modifier_id == ModifierId.TOUGH:
-            self.name = 'Tough ' + self.name
-            self.max_ep += 2
-        if self.modifier_id == ModifierId.BIG:
-            if 'Big' in self.name:
-                self.name = self.name.replace('Big', 'Gargantuan')
-            elif 'Small' in self.name:
-                self.name = self.name.replace('Small', 'Not So Small')
-            else:
-                self.name = 'Big ' + self.name
-            self.max_st += 20 if not one_dmg else 2
-            self.max_ep += 1
-        if self.modifier_id == ModifierId.MISCHIEVOUS:
-            self.name = 'Mischievous ' + self.name
-            self.dmg += 10
-        if self.modifier_id == ModifierId.BLESSED_BY_LAUGHTER:
-            self.name = 'Blessed ' + self.name
-            self.abilities.append(EnemyAbility(
-                EnemyAbilityId.HEAL_ST_EVERY_X_HITS,
-                heal=(5 if not one_dmg else 1),
-                hits=(1 if not one_dmg else 2)))
-        if self.modifier_id == ModifierId.CURSED:
-            self.name = 'Cursed ' + self.name
-            self.abilities.append(EnemyAbility(
-                EnemyAbilityId.CAST_SPELL_EVERY_X_TURNS,
-                turns=2))
-
-        # Trinkets
-        if not self.trinket_id and self.level and self.level % 3 == 0:
-            self.trinket_id = choice(list(TrinketId))
-
-        if self.trinket_id == TrinketId.GRINDSTONE:
-            self.dmg += 2
-        if self.trinket_id == TrinketId.RING_ENDURANCE:
-            if self.max_ep <= 0:
-                self.max_ep = 1
-            self.abilities.append(EnemyAbility(
-                EnemyAbilityId.HEAL_EP_EVERY_X_TURNS,
-                heal=1, turns=5))
-        if self.trinket_id == TrinketId.GOLDEN_FEATHER:
-            self.gold += 10
-        if self.trinket_id == TrinketId.BROKEN_FEATHERARROW:
-            self.abilities.append(EnemyAbility(
-                EnemyAbilityId.DAMAGE_AFTER_X_TURNS_ON_HIT,
-                Dice(1, 20), turns=5))
-        if self.trinket_id == TrinketId.LIQUID_LAUGHTER_VIAL:
-            self.abilities.append(EnemyAbility(
-                EnemyAbilityId.INFLICT_STATUS_ON_HIT,
-                status_id=StatusId.LGI, level=1))
-        if self.trinket_id == TrinketId.SWIFT_FEATHER:
-            self.abilities.append(EnemyAbility(
-                EnemyAbilityId.CHANCE_TO_EVADE,
-                chance_dice=Dice(1, 10), target=10))
-
-        # Final stats
-        self.st = self.max_st
-        self.ep = self.max_ep
-
-
-class TrapType(Enum):
-    DIRECT_DAMAGE = auto()
-
-
-@dataclass
-class Trap:
-    name: str
-    trap_type: TrapType
-    dmg: int = None
-
-
 class Encounter:
     def __init__(self, encounter_class, *args, **kwargs):
         self.encounter_class = encounter_class
         self.args = args
         self.kwargs = kwargs
-
-
-class RewardType(Enum):
-    ITEM = auto()
-    GOLD_AND_TRINKET = auto()
-
-
-@dataclass
-class Reward:
-    reward_type: RewardType
-    gold_dice: Dice = None
-
-
-class TrinketId(Enum):
-    GRINDSTONE = auto()
-    RING_ENDURANCE = auto()
-    GOLDEN_FEATHER = auto()
-    BROKEN_FEATHERARROW = auto()
-    LIQUID_LAUGHTER_VIAL = auto()
-    SWIFT_FEATHER = auto()
-
-
-@dataclass
-class Trinket:
-    name: str
-
-
-TRINKETS = {
-    TrinketId.GRINDSTONE:
-        Trinket('Grindstone'),
-    TrinketId.RING_ENDURANCE:
-        Trinket('Ring of Endurance'),
-    TrinketId.GOLDEN_FEATHER:
-        Trinket('Golden Feather'),
-    TrinketId.BROKEN_FEATHERARROW:
-        Trinket('Broken Featherarrow'),
-    TrinketId.LIQUID_LAUGHTER_VIAL:
-        Trinket('Liquid Laughter Vial'),
-    TrinketId.SWIFT_FEATHER:
-        Trinket('Swift Feather'),
-}
 
 
 ENCOUNTERS = {
@@ -288,7 +80,7 @@ ENCOUNTERS = {
                          turns=2)
         ]),
     EncounterId.ITEM:
-        Encounter(Reward, RewardType.ITEM),
+        Encounter(Reward, RewardId.ITEM),
     EncounterId.LICH:
         Encounter(Enemy, 'Lich', max_st=50, dmg=25),
     EncounterId.TICKLE_ZOMBIE:
@@ -313,12 +105,15 @@ ENCOUNTERS = {
                          dmg=5, hits=3)
         ]),
     EncounterId.TREASURE_ROOM:
-        Encounter(Reward, RewardType.GOLD_AND_TRINKET,
+        Encounter(Reward, RewardId.GOLD_AND_TRINKET,
                   gold_dice=Dice(2, 20, 60))
 }
 
+
 # Testing
 if __name__ == '__main__':
+    from trinket import TRINKETS
+
     enemy_enc = ENCOUNTERS[EncounterId.DRAGONBORN]
     enemy = enemy_enc.encounter_class(
         *enemy_enc.args, level=1, **enemy_enc.kwargs
@@ -349,3 +144,12 @@ if __name__ == '__main__':
             trinket = TRINKETS[slime.trinket_id]
             print(f'Level {slime.level} {slime.name} holding a {trinket.name}')
             level += 3
+
+    dice = Dice(2, 20)
+    print(dice)
+
+    roll = dice.roll()
+    print(f'{roll = }')
+
+    roll_adv = dice.roll_advantage()
+    print(f'{roll_adv = }')

@@ -1,7 +1,6 @@
 from __future__ import annotations
 from enum import Enum, auto
 
-from helpers import Dice
 from enemy import Enemy, EnemyAbility, EnemyAbilityId, ModifierId
 from reward import Reward, RewardId
 from trap import Trap, TrapType
@@ -49,7 +48,7 @@ ENCOUNTERS = {
     EncounterId.FLYING_TICKLE_IMPS:
         Encounter(Enemy, 'Flying Tickle Imps', max_st=25, dmg=15, abilities=[
             EnemyAbility(EnemyAbilityId.DAMAGE_EVERY_X_TURNS,
-                         Dice(2, 20), turns=5)
+                         dmg_dice=(2, 20), turns=5)
         ]),
     EncounterId.TICKLE_TRAP:
         Encounter(Trap, 'Tickle Trap', TrapType.DIRECT_DAMAGE, dmg=25),
@@ -90,14 +89,14 @@ ENCOUNTERS = {
     EncounterId.DRAGONBORN:
         Encounter(Enemy, 'Dragonborn', max_st=50, dmg=20, abilities=[
             EnemyAbility(EnemyAbilityId.DAMAGE_EVERY_X_TURNS,
-                         Dice(3, 6), turns=5),
+                         dmg_dice=(3, 6), turns=5),
             EnemyAbility(EnemyAbilityId.FIXED_DAMAGE_ON_PLAYER_MISS,
                          dmg=5)
         ]),
     EncounterId.BLACK_MAGE:
         Encounter(Enemy, 'Black Mage', max_st=15, dmg=35, abilities=[
             EnemyAbility(EnemyAbilityId.DAMAGE_EVERY_X_TURNS,
-                         Dice(1, 10), turns=5)
+                         dmg_dice=(1, 10), turns=5)
         ]),
     EncounterId.CERBERUS:
         Encounter(Enemy, 'Cerberus', max_st=30, dmg=15, abilities=[
@@ -106,13 +105,14 @@ ENCOUNTERS = {
         ]),
     EncounterId.TREASURE_ROOM:
         Encounter(Reward, RewardId.GOLD_AND_TRINKET,
-                  gold_dice=Dice(2, 20, 60))
+                  gold_dice=(2, 20, 60))
 }
 
 
 # Testing
 if __name__ == '__main__':
     from item import TRINKETS
+    from helpers import dice_roll, dice_roll_advantage, print_dice
 
     enemy_enc = ENCOUNTERS[EncounterId.DRAGONBORN]
     enemy = enemy_enc.encounter_class(
@@ -145,11 +145,11 @@ if __name__ == '__main__':
             print(f'Level {slime.level} {slime.name} holding a {trinket.name}')
             level += 3
 
-    dice = Dice(2, 20)
-    print(dice)
+    for dice in [(1, 20), (2, 20), (3, 6, 10), (1, 10, -2)]:
+        dtext = print_dice(*dice)
 
-    roll = dice.roll()
-    print(f'{roll = }')
+        roll = dice_roll(*dice)
+        roll_adv = dice_roll_advantage(*dice)
 
-    roll_adv = dice.roll_advantage()
-    print(f'{roll_adv = }')
+        print(f'{dtext} -> regular roll:', roll)
+        print(f'{dtext} -> roll w/ advantage:', roll_adv)

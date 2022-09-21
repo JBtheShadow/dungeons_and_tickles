@@ -2,8 +2,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from helpers import Dice
-
 
 class RewardId(Enum):
     ITEM = auto()
@@ -13,4 +11,4 @@ class RewardId(Enum):
 @dataclass
 class Reward:
     reward_id: RewardId
-    gold_dice: Dice = None
+    gold_dice: tuple = None

@@ -1,9 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from secrets import choice
+from random import choice
 
-from helpers import Dice
 from status import StatusId
 from item import TrinketId
 
@@ -35,9 +34,9 @@ class EnemyAbilityId(Enum):
 @dataclass
 class EnemyAbility:
     ability_id: EnemyAbilityId
-    dmg_dice: Dice = None
+    dmg_dice: tuple = None
     status_id: StatusId = None
-    chance_dice: Dice = None
+    chance_dice: tuple = None
     turns: int = None
     dmg: int = None
     heal: int = None
@@ -128,7 +127,7 @@ class Enemy:
         if self.trinket_id == TrinketId.BROKEN_FEATHERARROW:
             self.abilities.append(EnemyAbility(
                 EnemyAbilityId.DAMAGE_AFTER_X_TURNS_ON_HIT,
-                Dice(1, 20), turns=5))
+                dmg_dice=(1, 20), turns=5))
         if self.trinket_id == TrinketId.LIQUID_LAUGHTER_VIAL:
             self.abilities.append(EnemyAbility(
                 EnemyAbilityId.INFLICT_STATUS_ON_HIT,
@@ -136,7 +135,7 @@ class Enemy:
         if self.trinket_id == TrinketId.SWIFT_FEATHER:
             self.abilities.append(EnemyAbility(
                 EnemyAbilityId.CHANCE_TO_EVADE,
-                chance_dice=Dice(1, 10), target=10))
+                chance_dice=(1, 10), target=10))
 
         # Final stats
         self.st = self.max_st

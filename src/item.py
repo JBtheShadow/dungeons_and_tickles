@@ -1,8 +1,28 @@
 from __future__ import annotations
+from abc import ABC
 from dataclasses import dataclass
 from enum import Enum, auto
 
 
+# Items
+class ItemAbilityId(Enum):
+    ESCAPE_FROM_BATTLE = auto()
+    # TODO
+
+
+@dataclass
+class Item(ABC):
+    name: str
+    description: str = None
+
+
+# Consumables
+@dataclass
+class Consumable(Item):
+    pass
+
+
+# Trinkets
 class TrinketId(Enum):
     GRINDSTONE = auto()
     RING_ENDURANCE = auto()
@@ -13,8 +33,8 @@ class TrinketId(Enum):
 
 
 @dataclass
-class Trinket:
-    name: str
+class Trinket(Item):
+    pass
 
 
 TRINKETS = {

@@ -167,7 +167,7 @@ class Enemy:
                 self.max_ep = 1
             self.abilities.append(EnemyAbility(
                 EnemyAbilityId.HEAL_EP_EVERY_X_TURNS,
-                heal=1, turns=2))
+                heal=1, turns=5))
         if self.trinket_id == TrinketId.GOLDEN_FEATHER:
             self.gold += 10
         if self.trinket_id == TrinketId.BROKEN_FEATHERARROW:

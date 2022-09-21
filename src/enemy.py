@@ -5,7 +5,7 @@ from secrets import choice
 
 from helpers import Dice
 from status import StatusId
-from trinket import TrinketId
+from item import TrinketId
 
 
 class ModifierId(Enum):

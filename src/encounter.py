@@ -112,7 +112,7 @@ ENCOUNTERS = {
 
 # Testing
 if __name__ == '__main__':
-    from trinket import TRINKETS
+    from item import TRINKETS
 
     enemy_enc = ENCOUNTERS[EncounterId.DRAGONBORN]
     enemy = enemy_enc.encounter_class(

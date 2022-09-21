@@ -322,7 +322,7 @@ def main():
             fps_text,
         ],
         ScreenId.PLAYER_SETUP: [
-            (player_setup_text := Text(0, 50, 'Player 1/1',
+            (player_setup_text := Text(0, 50, 'Player 1 of 1',
                                        medium_font, Align.CENTER)),
 
             Text(-300, 150, 'Name:', medium_font, Align.CENTER),
@@ -436,7 +436,7 @@ def main():
             fps_text.text = f'{int(clock.get_fps())} FPS'
 
         if player_setup_text in visible_elements:
-            player_setup_text.text = (f'Player {game.current_player + 1}/'
+            player_setup_text.text = (f'Player {game.current_player + 1} of '
                                       f'{game.player_count}')
         if player_name_input in visible_elements:
             player_name_input.value = player.name

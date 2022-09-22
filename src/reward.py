@@ -3,12 +3,12 @@ from dataclasses import dataclass
 from enum import Enum, auto
 
 
-class RewardId(Enum):
+class RewardID(Enum):
     ITEM = auto()
     GOLD_AND_TRINKET = auto()
 
 
 @dataclass
 class Reward:
-    reward_id: RewardId
+    reward_id: RewardID
     gold_dice: tuple = None

@@ -6,7 +6,7 @@ from enum import Enum, auto
 import sys
 import pygame
 
-from job import JOBS, JobId
+from job import JOBS, JobID
 
 
 WIN_WIDTH = 1280
@@ -78,11 +78,11 @@ def change_player_job(state: GameState, value):
 
 
 def change_screen(state: GameState, screen):
-    if screen == ScreenId.PLAYER_COUNT:
-        if state.screen == ScreenId.TITLE:
+    if screen == ScreenID.PLAYER_COUNT:
+        if state.screen == ScreenID.TITLE:
             state.player_count = 1
-    if screen == ScreenId.PLAYER_SETUP:
-        if state.screen == ScreenId.PLAYER_COUNT:
+    if screen == ScreenID.PLAYER_SETUP:
+        if state.screen == ScreenID.PLAYER_COUNT:
             state.current_player = 0
             state.players = [Player(f'Player {i}')
                              for i in range(1, state.player_count + 1)]
@@ -93,11 +93,11 @@ def setup_next_player(state: GameState, next):
     state.current_player += next
     if state.current_player < 0:
         state.current_player = 0
-        change_screen(state, ScreenId.PLAYER_COUNT)
+        change_screen(state, ScreenID.PLAYER_COUNT)
         return
     elif state.current_player >= state.player_count:
         state.current_player = state.player_count - 1
-        change_screen(state, ScreenId.SETUP_CONFIRM)
+        change_screen(state, ScreenID.SETUP_CONFIRM)
         return
 
 
@@ -228,7 +228,7 @@ class Input(Text):
 class Player:
     name: str
     race: str = 'Human'
-    job_id: JobId = JobId.WARRIOR
+    job_id: JobID = JobID.WARRIOR
 
 
 class Screen:
@@ -241,7 +241,7 @@ class Screen:
 
 class GameState:
     def __init__(self):
-        self.screen = ScreenId.TITLE
+        self.screen = ScreenID.TITLE
         self.player_count = 1
         self.visible_elements = []
         self.current_player = 0
@@ -249,7 +249,7 @@ class GameState:
         self.input_focused: Input = None
 
 
-class ScreenId(Enum):
+class ScreenID(Enum):
     TITLE = auto()
     PLAYER_COUNT = auto()
     PLAYER_SETUP = auto()
@@ -274,8 +274,8 @@ def main():
 
     # Game elements
     visible_elements: list[UIElement] = []
-    screens: dict[ScreenId, list[UIElement]] = {
-        ScreenId.TITLE: [
+    screens: dict[ScreenID, list[UIElement]] = {
+        ScreenID.TITLE: [
             Text(0, 20, 'Dungeons & Tickles', title_font, Align.CENTER),
             Text(
                 0, 100,
@@ -291,17 +291,17 @@ def main():
 
             Button(0, 320, 'Start a new game (overwrites current save)',
                    medium_font, Align.CENTER, VAlign.TOP, CYAN, RED,
-                   change_screen, [game, ScreenId.PLAYER_COUNT]),
+                   change_screen, [game, ScreenID.PLAYER_COUNT]),
             Button(0, 370, 'Load last saved game (if any)', medium_font,
                    Align.CENTER, VAlign.TOP, CYAN, RED,
-                   change_screen, [game, ScreenId.PLAYER_COUNT]),
+                   change_screen, [game, ScreenID.PLAYER_COUNT]),
             Button(4, 420, 'Quit to desktop',
                    medium_font, Align.CENTER, VAlign.TOP, CYAN, RED,
                    quit_to_desktop),
             (fps_text := Text(10, 10, '',
                               default_font, v_align=VAlign.BOTTOM)),
         ],
-        ScreenId.PLAYER_COUNT: [
+        ScreenID.PLAYER_COUNT: [
             Text(0, 300, 'How many players will join this session?',
                  medium_font, Align.CENTER),
 
@@ -313,13 +313,13 @@ def main():
                    YELLOW, RED, change_player_count, [game, 1]),
 
             Button(-50, 600, 'Back', medium_font, Align.CENTER, VAlign.TOP,
-                   CYAN, RED, change_screen, [game, ScreenId.TITLE]),
+                   CYAN, RED, change_screen, [game, ScreenID.TITLE]),
             Button(50, 600, 'Next', medium_font, Align.CENTER, VAlign.TOP,
                    CYAN, RED,
-                   change_screen, [game, ScreenId.PLAYER_SETUP]),
+                   change_screen, [game, ScreenID.PLAYER_SETUP]),
             fps_text,
         ],
-        ScreenId.PLAYER_SETUP: [
+        ScreenID.PLAYER_SETUP: [
             (player_setup_text := Text(0, 50, 'Player 1 of 1',
                                        medium_font, Align.CENTER)),
 
@@ -337,14 +337,14 @@ def main():
             Button(-410, 310, '<', option_font,
                    Align.CENTER, VAlign.TOP, YELLOW, RED,
                    change_player_job, [game, -1]),
-            (player_job_name := Text(-300, 310, JOBS[JobId.WARRIOR].name,
+            (player_job_name := Text(-300, 310, JOBS[JobID.WARRIOR].name,
                                      option_font, Align.CENTER)),
             Button(-190, 310, '>', option_font,
                    Align.CENTER, VAlign.TOP, YELLOW, RED,
                    change_player_job, [game, 1]),
 
             (player_job_description := Text(
-                0, 400, JOBS[JobId.WARRIOR].description,
+                0, 400, JOBS[JobID.WARRIOR].description,
                 default_font, Align.CENTER)),
 
             Text(300, 150, 'Stats:', medium_font, Align.CENTER),
@@ -369,7 +369,7 @@ def main():
                    setup_next_player, [game, 1]),
             fps_text,
         ],
-        ScreenId.SETUP_CONFIRM: [
+        ScreenID.SETUP_CONFIRM: [
             Text(0, 50, 'Start a game with these players?',
                  medium_font, Align.CENTER),
 
@@ -378,10 +378,10 @@ def main():
 
             Button(-50, 600, 'Back', medium_font,
                    Align.CENTER, VAlign.TOP, CYAN, RED,
-                   change_screen, [game, ScreenId.PLAYER_SETUP]),
+                   change_screen, [game, ScreenID.PLAYER_SETUP]),
             Button(50, 600, 'CONFIRM', medium_font,
                    Align.CENTER, VAlign.TOP, CYAN, RED,
-                   change_screen, [game, ScreenId.SETUP_CONFIRM]),
+                   change_screen, [game, ScreenID.SETUP_CONFIRM]),
             fps_text,
         ],
     }
@@ -451,7 +451,7 @@ def main():
             player_mp_text.text = f'MP: {job.mp}'
         if player_at_text in visible_elements:
             player_at_text.text = (
-                f'AT: {job.at}' if player.job_id != JobId.LEE
+                f'AT: {job.at}' if player.job_id != JobID.LEE
                 else 'AT: -'
             )
         if player_ep_text in visible_elements:

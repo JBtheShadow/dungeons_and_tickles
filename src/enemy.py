@@ -2,12 +2,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from random import choice
+from ability import Ability, AbilityID, StatusID
+from item import TRINKETS, ItemID
 
-from status import StatusId
-from item import TrinketId
 
-
-class ModifierId(Enum):
+class ModifierID(Enum):
     UNNATURALLY_TICKLISH = auto()
     TOUGH = auto()
     BIG = auto()
@@ -16,44 +15,15 @@ class ModifierId(Enum):
     CURSED = auto()
 
 
-class EnemyAbilityId(Enum):
-    ALL_DAMAGE_TAKEN_SET_TO_1 = auto()
-    DAMAGE_EVERY_X_TURNS = auto()
-    FAINT_IN_X_TURNS = auto()
-    IMMUNE_EVERY_X_TURNS = auto()
-    FIXED_DAMAGE_EVERY_X_HITS = auto()
-    HEAL_ST_EVERY_X_HITS = auto()
-    CAST_SPELL_EVERY_X_TURNS = auto()
-    FIXED_DAMAGE_ON_PLAYER_MISS = auto()
-    HEAL_EP_EVERY_X_TURNS = auto()
-    DAMAGE_AFTER_X_TURNS_ON_HIT = auto()
-    CHANCE_TO_EVADE = auto()
-    INFLICT_STATUS_ON_HIT = auto()
-
-
-@dataclass
-class EnemyAbility:
-    ability_id: EnemyAbilityId
-    dmg_dice: tuple = None
-    status_id: StatusId = None
-    chance_dice: tuple = None
-    turns: int = None
-    dmg: int = None
-    heal: int = None
-    hits: int = None
-    target: int = None
-    level: int = None
-
-
 @dataclass
 class Enemy:
     name: str
     max_st: int = None
     max_ep: int = 0
     dmg: int = None
-    modifier_id: ModifierId = None
-    trinket_id: TrinketId = None
-    abilities: list[EnemyAbility] = None
+    modifier_id: ModifierID = None
+    trinket_id: ItemID = None
+    abilities: list[Ability] = None
     level: int = 0
     gold: int = 50
 
@@ -62,7 +32,7 @@ class Enemy:
 
     def __post_init__(self):
         self.abilities = self.abilities or []
-        one_dmg = EnemyAbilityId.ALL_DAMAGE_TAKEN_SET_TO_1 in self.abilities
+        one_dmg = AbilityID.ALL_DAMAGE_TAKEN_SET_TO_1 in self.abilities
 
         # Level
         if self.level:
@@ -71,22 +41,22 @@ class Enemy:
 
             faint_abilities = [
                 x for x in self.abilities
-                if x.ability_id == EnemyAbilityId.FAINT_IN_X_TURNS
+                if x.ability_id == AbilityID.FAINT_IN_X_TURNS
             ]
             if faint_abilities:
                 faint_abilities[0].turns += self.level
 
         # Modifier
         if not self.modifier_id and self.level:
-            self.modifier_id = choice(list(ModifierId))
+            self.modifier_id = choice(list(ModifierID))
 
-        if self.modifier_id == ModifierId.UNNATURALLY_TICKLISH:
+        if self.modifier_id == ModifierID.UNNATURALLY_TICKLISH:
             self.name = 'Unnaturally Ticklish ' + self.name
             self.max_st -= 5 if not one_dmg else 1
-        if self.modifier_id == ModifierId.TOUGH:
+        if self.modifier_id == ModifierID.TOUGH:
             self.name = 'Tough ' + self.name
             self.max_ep += 2
-        if self.modifier_id == ModifierId.BIG:
+        if self.modifier_id == ModifierID.BIG:
             if 'Big' in self.name:
                 self.name = self.name.replace('Big', 'Gargantuan')
             elif 'Small' in self.name:
@@ -95,46 +65,46 @@ class Enemy:
                 self.name = 'Big ' + self.name
             self.max_st += 20 if not one_dmg else 2
             self.max_ep += 1
-        if self.modifier_id == ModifierId.MISCHIEVOUS:
+        if self.modifier_id == ModifierID.MISCHIEVOUS:
             self.name = 'Mischievous ' + self.name
             self.dmg += 10
-        if self.modifier_id == ModifierId.BLESSED_BY_LAUGHTER:
+        if self.modifier_id == ModifierID.BLESSED_BY_LAUGHTER:
             self.name = 'Blessed ' + self.name
-            self.abilities.append(EnemyAbility(
-                EnemyAbilityId.HEAL_ST_EVERY_X_HITS,
+            self.abilities.append(Ability(
+                AbilityID.HEAL_ST_EVERY_X_HITS,
                 heal=(5 if not one_dmg else 1),
                 hits=(1 if not one_dmg else 2)))
-        if self.modifier_id == ModifierId.CURSED:
+        if self.modifier_id == ModifierID.CURSED:
             self.name = 'Cursed ' + self.name
-            self.abilities.append(EnemyAbility(
-                EnemyAbilityId.CAST_SPELL_EVERY_X_TURNS,
+            self.abilities.append(Ability(
+                AbilityID.CAST_SPELL_EVERY_X_TURNS,
                 turns=2))
 
         # Trinkets
         if not self.trinket_id and self.level and self.level % 3 == 0:
-            self.trinket_id = choice(list(TrinketId))
+            self.trinket_id = choice(list(TRINKETS))
 
-        if self.trinket_id == TrinketId.GRINDSTONE:
+        if self.trinket_id == ItemID.GRINDSTONE:
             self.dmg += 2
-        if self.trinket_id == TrinketId.RING_ENDURANCE:
+        if self.trinket_id == ItemID.RING_ENDURANCE:
             if self.max_ep <= 0:
                 self.max_ep = 1
-            self.abilities.append(EnemyAbility(
-                EnemyAbilityId.HEAL_EP_EVERY_X_TURNS,
+            self.abilities.append(Ability(
+                AbilityID.HEAL_EP_EVERY_X_TURNS,
                 heal=1, turns=5))
-        if self.trinket_id == TrinketId.GOLDEN_FEATHER:
+        if self.trinket_id == ItemID.GOLDEN_FEATHER:
             self.gold += 10
-        if self.trinket_id == TrinketId.BROKEN_FEATHERARROW:
-            self.abilities.append(EnemyAbility(
-                EnemyAbilityId.DAMAGE_AFTER_X_TURNS_ON_HIT,
+        if self.trinket_id == ItemID.BROKEN_FEATHERARROW:
+            self.abilities.append(Ability(
+                AbilityID.DAMAGE_AFTER_X_TURNS_ON_HIT,
                 dmg_dice=(1, 20), turns=5))
-        if self.trinket_id == TrinketId.LIQUID_LAUGHTER_VIAL:
-            self.abilities.append(EnemyAbility(
-                EnemyAbilityId.INFLICT_STATUS_ON_HIT,
-                status_id=StatusId.LGI, level=1))
-        if self.trinket_id == TrinketId.SWIFT_FEATHER:
-            self.abilities.append(EnemyAbility(
-                EnemyAbilityId.CHANCE_TO_EVADE,
+        if self.trinket_id == ItemID.LIQUID_LAUGHTER_VIAL:
+            self.abilities.append(Ability(
+                AbilityID.INFLICT_STATUS_ON_HIT,
+                status_id=StatusID.LGI, level=1))
+        if self.trinket_id == ItemID.SWIFT_FEATHER:
+            self.abilities.append(Ability(
+                AbilityID.CHANCE_TO_EVADE,
                 chance_dice=(1, 10), target=10))
 
         # Final stats

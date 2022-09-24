@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum, auto
 
@@ -11,6 +12,7 @@ class TrapID(Enum):
     TICKLE_TRAP = auto()
     TOLLBOOTH = auto()
     TICKLE_GLUE_TRAP = auto()
+    TRIPWIRE = auto()
 
 
 @dataclass

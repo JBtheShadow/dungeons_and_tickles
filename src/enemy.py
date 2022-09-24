@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from random import choice
+
 from ability import Ability, AbilityID, StatusID
 from item import TRINKETS, ItemID
 
@@ -40,8 +42,7 @@ class Enemy:
             self.dmg += 10 * self.level
 
             faint_abilities = [
-                x for x in self.abilities
-                if x.ability_id == AbilityID.FAINT_IN_X_TURNS
+                x for x in self.abilities if x.ability_id == AbilityID.FAINT_IN_X_TURNS
             ]
             if faint_abilities:
                 faint_abilities[0].turns += self.level
@@ -51,34 +52,35 @@ class Enemy:
             self.modifier_id = choice(list(ModifierID))
 
         if self.modifier_id == ModifierID.UNNATURALLY_TICKLISH:
-            self.name = 'Unnaturally Ticklish ' + self.name
+            self.name = "Unnaturally Ticklish " + self.name
             self.max_st -= 5 if not one_dmg else 1
         if self.modifier_id == ModifierID.TOUGH:
-            self.name = 'Tough ' + self.name
+            self.name = "Tough " + self.name
             self.max_ep += 2
         if self.modifier_id == ModifierID.BIG:
-            if 'Big' in self.name:
-                self.name = self.name.replace('Big', 'Gargantuan')
-            elif 'Small' in self.name:
-                self.name = self.name.replace('Small', 'Not So Small')
+            if "Big" in self.name:
+                self.name = self.name.replace("Big", "Gargantuan")
+            elif "Small" in self.name:
+                self.name = self.name.replace("Small", "Not So Small")
             else:
-                self.name = 'Big ' + self.name
+                self.name = "Big " + self.name
             self.max_st += 20 if not one_dmg else 2
             self.max_ep += 1
         if self.modifier_id == ModifierID.MISCHIEVOUS:
-            self.name = 'Mischievous ' + self.name
+            self.name = "Mischievous " + self.name
             self.dmg += 10
         if self.modifier_id == ModifierID.BLESSED_BY_LAUGHTER:
-            self.name = 'Blessed ' + self.name
-            self.abilities.append(Ability(
-                AbilityID.HEAL_ST_EVERY_X_HITS,
-                heal=(5 if not one_dmg else 1),
-                hits=(1 if not one_dmg else 2)))
+            self.name = "Blessed " + self.name
+            self.abilities.append(
+                Ability(
+                    AbilityID.HEAL_ST_EVERY_X_HITS,
+                    heal=(5 if not one_dmg else 1),
+                    hits=(1 if not one_dmg else 2),
+                )
+            )
         if self.modifier_id == ModifierID.CURSED:
-            self.name = 'Cursed ' + self.name
-            self.abilities.append(Ability(
-                AbilityID.CAST_SPELL_EVERY_X_TURNS,
-                turns=2))
+            self.name = "Cursed " + self.name
+            self.abilities.append(Ability(AbilityID.CAST_SPELL_EVERY_X_TURNS, turns=2))
 
         # Trinkets
         if not self.trinket_id and self.level and self.level % 3 == 0:
@@ -89,23 +91,27 @@ class Enemy:
         if self.trinket_id == ItemID.RING_ENDURANCE:
             if self.max_ep <= 0:
                 self.max_ep = 1
-            self.abilities.append(Ability(
-                AbilityID.HEAL_EP_EVERY_X_TURNS,
-                heal=1, turns=5))
+            self.abilities.append(
+                Ability(AbilityID.HEAL_EP_EVERY_X_TURNS, heal=1, turns=5)
+            )
         if self.trinket_id == ItemID.GOLDEN_FEATHER:
             self.gold += 10
         if self.trinket_id == ItemID.BROKEN_FEATHERARROW:
-            self.abilities.append(Ability(
-                AbilityID.DAMAGE_AFTER_X_TURNS_ON_HIT,
-                dmg_dice=(1, 20), turns=5))
+            self.abilities.append(
+                Ability(
+                    AbilityID.DAMAGE_AFTER_X_TURNS_ON_HIT, dmg_dice=(1, 20), turns=5
+                )
+            )
         if self.trinket_id == ItemID.LIQUID_LAUGHTER_VIAL:
-            self.abilities.append(Ability(
-                AbilityID.INFLICT_STATUS_ON_HIT,
-                status_id=StatusID.LGI, level=1))
+            self.abilities.append(
+                Ability(
+                    AbilityID.INFLICT_STATUS_ON_HIT, status_id=StatusID.LGI, level=1
+                )
+            )
         if self.trinket_id == ItemID.SWIFT_FEATHER:
-            self.abilities.append(Ability(
-                AbilityID.CHANCE_TO_EVADE,
-                chance_dice=(1, 10), target=10))
+            self.abilities.append(
+                Ability(AbilityID.CHANCE_TO_EVADE, chance_dice=(1, 10), target=10)
+            )
 
         # Final stats
         self.st = self.max_st

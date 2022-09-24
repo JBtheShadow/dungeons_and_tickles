@@ -1,11 +1,16 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum, auto
 
 
+class StatID(Enum):
+    AT = auto()
+
+
 class StatusID(Enum):
     LGI = auto()  # Laughing Gas Intoxication
-    TS = auto()   # Ticklish Sensations
+    TS = auto()  # Ticklish Sensations
     REGEN = auto()
     LRA = auto()  # Laugh Resist Aura
     EVADE = auto()
@@ -22,6 +27,9 @@ class AbilityID(Enum):
     ANY_ROLL_MODIFIER = auto()
     UNSTACKABLE_BATTLE_MODIFIER = auto()
     CHOOSE_ONE = auto()
+    FORCE_MOVE_TO_LOCATION = auto()
+    LEARN_NEW_SPELL = auto()
+    UNSTACKABLE_MISC_MODIFIER = auto()
 
     # Enemy Abilities
     ALL_DAMAGE_TAKEN_SET_TO_1 = auto()

@@ -1,25 +1,26 @@
 from __future__ import annotations
+
+import sys
 from abc import ABC
-from typing import Callable
 from dataclasses import dataclass, field
 from enum import Enum, auto
-import sys
+from typing import Callable
+
 import pygame
 
 from job import JOBS, JobID
 
-
 WIN_WIDTH = 1280
 WIN_HEIGHT = 720
 
-WHITE = 'white'
-CYAN = 'cyan'
-YELLOW = 'yellow'
-RED = 'red'
+WHITE = "white"
+CYAN = "cyan"
+YELLOW = "yellow"
+RED = "red"
 
-CURSOR_NONE = ''
-CURSOR_EMPTY = ' '
-CURSOR_FULL = '■'
+CURSOR_NONE = ""
+CURSOR_EMPTY = " "
+CURSOR_FULL = "■"
 
 
 def nop():
@@ -40,11 +41,10 @@ def draw_text(win: pygame.Surface, text: Text):
     color = text.color
     if text.hover_color:
         x, y = pygame.mouse.get_pos()
-        if (bounds.left <= x <= bounds.right
-                and bounds.top <= y <= bounds.bottom):
+        if bounds.left <= x <= bounds.right and bounds.top <= y <= bounds.bottom:
             color = text.hover_color
 
-    lines = text.text.split('\n')
+    lines = text.text.split("\n")
     text_surf = pygame.Surface((bounds.width, bounds.height))
     offset_y = 0
     step_y = int(text.font.get_linesize() * 1.4)
@@ -84,8 +84,9 @@ def change_screen(state: GameState, screen):
     if screen == ScreenID.PLAYER_SETUP:
         if state.screen == ScreenID.PLAYER_COUNT:
             state.current_player = 0
-            state.players = [Player(f'Player {i}')
-                             for i in range(1, state.player_count + 1)]
+            state.players = [
+                Player(f"Player {i}") for i in range(1, state.player_count + 1)
+            ]
     state.screen = screen
 
 
@@ -148,12 +149,11 @@ class Text(UIElement):
     hover_color: str = None
 
     def size(self):
-        lines = self.text.split('\n')
+        lines = self.text.split("\n")
         sizes = [self.font.size(text) for text in lines]
         font_size = self.font.get_linesize()
         width = max(map(lambda x: x[0], sizes))
-        height = (len(sizes) * font_size
-                  + 0.4 * int((len(sizes)-1) * font_size))
+        height = len(sizes) * font_size + 0.4 * int((len(sizes) - 1) * font_size)
         return width, height
 
     def bounds(self):
@@ -227,13 +227,12 @@ class Input(Text):
 @dataclass
 class Player:
     name: str
-    race: str = 'Human'
+    race: str = "Human"
     job_id: JobID = JobID.WARRIOR
 
 
 class Screen:
-    def __init__(self, x=0, y=0, width=WIN_WIDTH, height=WIN_HEIGHT,
-                 elements=None):
+    def __init__(self, x=0, y=0, width=WIN_WIDTH, height=WIN_HEIGHT, elements=None):
         self.win = pygame.Surface((width, height))
         self.rect = self.win.get_rect(topleft=(x, y))
         self.elements = elements or []
@@ -260,128 +259,264 @@ def main():
 
     # Initialize
     pygame.init()
-    pygame.display.set_caption('Dungeons & Tickles Simulator')
+    pygame.display.set_caption("Dungeons & Tickles Simulator")
     win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     clock = pygame.time.Clock()
 
     game = GameState()
 
     # Fonts
-    default_font = pygame.font.SysFont('Lucida Console', 15)
-    option_font = pygame.font.SysFont('Lucida Console', 20)
-    medium_font = pygame.font.SysFont('Lucida Console', 25)
-    title_font = pygame.font.SysFont('Lucida Console', 40)
+    default_font = pygame.font.SysFont("Lucida Console", 15)
+    option_font = pygame.font.SysFont("Lucida Console", 20)
+    medium_font = pygame.font.SysFont("Lucida Console", 25)
+    title_font = pygame.font.SysFont("Lucida Console", 40)
 
     # Game elements
     visible_elements: list[UIElement] = []
     screens: dict[ScreenID, list[UIElement]] = {
         ScreenID.TITLE: [
-            Text(0, 20, 'Dungeons & Tickles', title_font, Align.CENTER),
+            Text(0, 20, "Dungeons & Tickles", title_font, Align.CENTER),
             Text(
-                0, 100,
-                'Welcome to the Dungeons & Tickles Simulator, made in Python '
-                '3.9 by JBtheShadow.\n'
-                'As the name suggests, this is merely a simulator and not a '
-                'full replacement of the original tabletop game.\n'
-                'This is also a work in progress, subject to change.',
-                default_font, Align.CENTER),
-
-            Text(0, 250, 'What would you like to do?',
-                 default_font, Align.CENTER),
-
-            Button(0, 320, 'Start a new game (overwrites current save)',
-                   medium_font, Align.CENTER, VAlign.TOP, CYAN, RED,
-                   change_screen, [game, ScreenID.PLAYER_COUNT]),
-            Button(0, 370, 'Load last saved game (if any)', medium_font,
-                   Align.CENTER, VAlign.TOP, CYAN, RED,
-                   change_screen, [game, ScreenID.PLAYER_COUNT]),
-            Button(4, 420, 'Quit to desktop',
-                   medium_font, Align.CENTER, VAlign.TOP, CYAN, RED,
-                   quit_to_desktop),
-            (fps_text := Text(10, 10, '',
-                              default_font, v_align=VAlign.BOTTOM)),
+                0,
+                100,
+                "Welcome to the Dungeons & Tickles Simulator, made in Python "
+                "3.9 by JBtheShadow.\n"
+                "As the name suggests, this is merely a simulator and not a "
+                "full replacement of the original tabletop game.\n"
+                "This is also a work in progress, subject to change.",
+                default_font,
+                Align.CENTER,
+            ),
+            Text(0, 250, "What would you like to do?", default_font, Align.CENTER),
+            Button(
+                0,
+                320,
+                "Start a new game (overwrites current save)",
+                medium_font,
+                Align.CENTER,
+                VAlign.TOP,
+                CYAN,
+                RED,
+                change_screen,
+                [game, ScreenID.PLAYER_COUNT],
+            ),
+            Button(
+                0,
+                370,
+                "Load last saved game (if any)",
+                medium_font,
+                Align.CENTER,
+                VAlign.TOP,
+                CYAN,
+                RED,
+                change_screen,
+                [game, ScreenID.PLAYER_COUNT],
+            ),
+            Button(
+                4,
+                420,
+                "Quit to desktop",
+                medium_font,
+                Align.CENTER,
+                VAlign.TOP,
+                CYAN,
+                RED,
+                quit_to_desktop,
+            ),
+            (fps_text := Text(10, 10, "", default_font, v_align=VAlign.BOTTOM)),
         ],
         ScreenID.PLAYER_COUNT: [
-            Text(0, 300, 'How many players will join this session?',
-                 medium_font, Align.CENTER),
-
-            Button(-30, 350, '-', option_font, Align.CENTER, VAlign.TOP,
-                   YELLOW, RED, change_player_count, [game, -1]),
-            (player_count_text := Text(0, 350, f'{game.player_count}',
-                                       option_font, Align.CENTER)),
-            Button(30, 350, '+', option_font, Align.CENTER, VAlign.TOP,
-                   YELLOW, RED, change_player_count, [game, 1]),
-
-            Button(-50, 600, 'Back', medium_font, Align.CENTER, VAlign.TOP,
-                   CYAN, RED, change_screen, [game, ScreenID.TITLE]),
-            Button(50, 600, 'Next', medium_font, Align.CENTER, VAlign.TOP,
-                   CYAN, RED,
-                   change_screen, [game, ScreenID.PLAYER_SETUP]),
+            Text(
+                0,
+                300,
+                "How many players will join this session?",
+                medium_font,
+                Align.CENTER,
+            ),
+            Button(
+                -30,
+                350,
+                "-",
+                option_font,
+                Align.CENTER,
+                VAlign.TOP,
+                YELLOW,
+                RED,
+                change_player_count,
+                [game, -1],
+            ),
+            (
+                player_count_text := Text(
+                    0, 350, f"{game.player_count}", option_font, Align.CENTER
+                )
+            ),
+            Button(
+                30,
+                350,
+                "+",
+                option_font,
+                Align.CENTER,
+                VAlign.TOP,
+                YELLOW,
+                RED,
+                change_player_count,
+                [game, 1],
+            ),
+            Button(
+                -50,
+                600,
+                "Back",
+                medium_font,
+                Align.CENTER,
+                VAlign.TOP,
+                CYAN,
+                RED,
+                change_screen,
+                [game, ScreenID.TITLE],
+            ),
+            Button(
+                50,
+                600,
+                "Next",
+                medium_font,
+                Align.CENTER,
+                VAlign.TOP,
+                CYAN,
+                RED,
+                change_screen,
+                [game, ScreenID.PLAYER_SETUP],
+            ),
             fps_text,
         ],
         ScreenID.PLAYER_SETUP: [
-            (player_setup_text := Text(0, 50, 'Player 1 of 1',
-                                       medium_font, Align.CENTER)),
-
-            Text(-300, 150, 'Name:', medium_font, Align.CENTER),
-            (player_name_input := Input(
-                -300, 180, 'Player 1', option_font, Align.CENTER,
-                focus=set_focus, game=game)),
-
-            Text(-300, 215, 'Race:', medium_font, Align.CENTER),
-            (player_race_input := Input(
-                -300, 245, 'Human', option_font, Align.CENTER,
-                focus=set_focus, game=game)),
-
-            Text(-300, 280, 'Job:', medium_font, Align.CENTER),
-            Button(-410, 310, '<', option_font,
-                   Align.CENTER, VAlign.TOP, YELLOW, RED,
-                   change_player_job, [game, -1]),
-            (player_job_name := Text(-300, 310, JOBS[JobID.WARRIOR].name,
-                                     option_font, Align.CENTER)),
-            Button(-190, 310, '>', option_font,
-                   Align.CENTER, VAlign.TOP, YELLOW, RED,
-                   change_player_job, [game, 1]),
-
-            (player_job_description := Text(
-                0, 400, JOBS[JobID.WARRIOR].description,
-                default_font, Align.CENTER)),
-
-            Text(300, 150, 'Stats:', medium_font, Align.CENTER),
-            (player_st_text := Text(250, 200, 'ST: 100',
-                                    option_font, Align.CENTER)),
-            (player_mp_text := Text(350, 200, 'MP: 50',
-                                    option_font, Align.CENTER)),
-            (player_at_text := Text(250, 240, 'AT: 1',
-                                    option_font, Align.CENTER)),
-            (player_ep_text := Text(350, 240, 'EP: 1',
-                                    option_font, Align.CENTER)),
-            (player_gold_text := Text(300, 280, 'Gold: 50',
-                                      option_font, Align.CENTER)),
-            (player_faith_text := Text(300, 320, 'Faith: 0',
-                                       option_font, Align.CENTER)),
-
-            Button(-50, 600, 'Back', medium_font,
-                   Align.CENTER, VAlign.TOP, CYAN, RED,
-                   setup_next_player, [game, -1]),
-            Button(50, 600, 'Next', medium_font,
-                   Align.CENTER, VAlign.TOP, CYAN, RED,
-                   setup_next_player, [game, 1]),
+            (
+                player_setup_text := Text(
+                    0, 50, "Player 1 of 1", medium_font, Align.CENTER
+                )
+            ),
+            Text(-300, 150, "Name:", medium_font, Align.CENTER),
+            (
+                player_name_input := Input(
+                    -300,
+                    180,
+                    "Player 1",
+                    option_font,
+                    Align.CENTER,
+                    focus=set_focus,
+                    game=game,
+                )
+            ),
+            Text(-300, 215, "Race:", medium_font, Align.CENTER),
+            (
+                player_race_input := Input(
+                    -300,
+                    245,
+                    "Human",
+                    option_font,
+                    Align.CENTER,
+                    focus=set_focus,
+                    game=game,
+                )
+            ),
+            Text(-300, 280, "Job:", medium_font, Align.CENTER),
+            Button(
+                -410,
+                310,
+                "<",
+                option_font,
+                Align.CENTER,
+                VAlign.TOP,
+                YELLOW,
+                RED,
+                change_player_job,
+                [game, -1],
+            ),
+            (
+                player_job_name := Text(
+                    -300, 310, JOBS[JobID.WARRIOR].name, option_font, Align.CENTER
+                )
+            ),
+            Button(
+                -190,
+                310,
+                ">",
+                option_font,
+                Align.CENTER,
+                VAlign.TOP,
+                YELLOW,
+                RED,
+                change_player_job,
+                [game, 1],
+            ),
+            (
+                player_job_description := Text(
+                    0, 400, JOBS[JobID.WARRIOR].description, default_font, Align.CENTER
+                )
+            ),
+            Text(300, 150, "Stats:", medium_font, Align.CENTER),
+            (player_st_text := Text(250, 200, "ST: 100", option_font, Align.CENTER)),
+            (player_mp_text := Text(350, 200, "MP: 50", option_font, Align.CENTER)),
+            (player_at_text := Text(250, 240, "AT: 1", option_font, Align.CENTER)),
+            (player_ep_text := Text(350, 240, "EP: 1", option_font, Align.CENTER)),
+            (player_gold_text := Text(300, 280, "Gold: 50", option_font, Align.CENTER)),
+            (
+                player_faith_text := Text(
+                    300, 320, "Faith: 0", option_font, Align.CENTER
+                )
+            ),
+            Button(
+                -50,
+                600,
+                "Back",
+                medium_font,
+                Align.CENTER,
+                VAlign.TOP,
+                CYAN,
+                RED,
+                setup_next_player,
+                [game, -1],
+            ),
+            Button(
+                50,
+                600,
+                "Next",
+                medium_font,
+                Align.CENTER,
+                VAlign.TOP,
+                CYAN,
+                RED,
+                setup_next_player,
+                [game, 1],
+            ),
             fps_text,
         ],
         ScreenID.SETUP_CONFIRM: [
-            Text(0, 50, 'Start a game with these players?',
-                 medium_font, Align.CENTER),
-
-            (setup_confirm_text := Text(0, 200, '',
-                                        option_font, Align.CENTER)),
-
-            Button(-50, 600, 'Back', medium_font,
-                   Align.CENTER, VAlign.TOP, CYAN, RED,
-                   change_screen, [game, ScreenID.PLAYER_SETUP]),
-            Button(50, 600, 'CONFIRM', medium_font,
-                   Align.CENTER, VAlign.TOP, CYAN, RED,
-                   change_screen, [game, ScreenID.SETUP_CONFIRM]),
+            Text(0, 50, "Start a game with these players?", medium_font, Align.CENTER),
+            (setup_confirm_text := Text(0, 200, "", option_font, Align.CENTER)),
+            Button(
+                -50,
+                600,
+                "Back",
+                medium_font,
+                Align.CENTER,
+                VAlign.TOP,
+                CYAN,
+                RED,
+                change_screen,
+                [game, ScreenID.PLAYER_SETUP],
+            ),
+            Button(
+                50,
+                600,
+                "CONFIRM",
+                medium_font,
+                Align.CENTER,
+                VAlign.TOP,
+                CYAN,
+                RED,
+                change_screen,
+                [game, ScreenID.SETUP_CONFIRM],
+            ),
             fps_text,
         ],
     }
@@ -402,8 +537,10 @@ def main():
                 x, y = event.pos
                 for element in visible_elements:
                     bounds = element.bounds()
-                    if (bounds.left <= x <= bounds.right
-                            and bounds.top <= y <= bounds.bottom):
+                    if (
+                        bounds.left <= x <= bounds.right
+                        and bounds.top <= y <= bounds.bottom
+                    ):
                         element.click()
                         break
 
@@ -414,28 +551,28 @@ def main():
 
                 if game.input_focused:
                     if game.input_focused is player_name_input:
-                        obj, field = game.players[game.current_player], 'name'
+                        obj, field = game.players[game.current_player], "name"
                     if game.input_focused is player_race_input:
-                        obj, field = game.players[game.current_player], 'race'
+                        obj, field = game.players[game.current_player], "race"
 
                     if obj and field:
                         keyboard_input(event, obj, field)
 
         # Update state
         visible_elements = screens[game.screen]
-        player = (game.players[game.current_player] if len(game.players)
-                  else None)
+        player = game.players[game.current_player] if len(game.players) else None
         job = JOBS[player.job_id] if player else None
 
         if player_count_text in visible_elements:
-            player_count_text.text = f'{game.player_count}'
+            player_count_text.text = f"{game.player_count}"
 
         if fps_text in visible_elements:
-            fps_text.text = f'{int(clock.get_fps())} FPS'
+            fps_text.text = f"{int(clock.get_fps())} FPS"
 
         if player_setup_text in visible_elements:
-            player_setup_text.text = (f'Player {game.current_player + 1} of '
-                                      f'{game.player_count}')
+            player_setup_text.text = (
+                f"Player {game.current_player + 1} of " f"{game.player_count}"
+            )
         if player_name_input in visible_elements:
             player_name_input.value = player.name
         if player_race_input in visible_elements:
@@ -446,44 +583,41 @@ def main():
             player_job_description.text = JOBS[player.job_id].description
 
         if player_st_text in visible_elements:
-            player_st_text.text = f'ST: {job.st}'
+            player_st_text.text = f"ST: {job.st}"
         if player_mp_text in visible_elements:
-            player_mp_text.text = f'MP: {job.mp}'
+            player_mp_text.text = f"MP: {job.mp}"
         if player_at_text in visible_elements:
             player_at_text.text = (
-                f'AT: {job.at}' if player.job_id != JobID.LEE
-                else 'AT: -'
+                f"AT: {job.at}" if player.job_id != JobID.LEE else "AT: -"
             )
         if player_ep_text in visible_elements:
-            player_ep_text.text = f'EP: {job.ep}'
+            player_ep_text.text = f"EP: {job.ep}"
         if player_gold_text in visible_elements:
-            player_gold_text.text = f'Gold: {job.gold}'
+            player_gold_text.text = f"Gold: {job.gold}"
         if player_faith_text in visible_elements:
             if not job.alignment:
-                player_faith_text.text = 'Faith: 0'
+                player_faith_text.text = "Faith: 0"
             else:
                 player_faith_text.text = (
-                    f'Faith: {job.faith} ('
+                    f"Faith: {job.faith} ("
                     f'{"Good" if job.alignment == "good" else "Evil"})'
                 )
 
         if setup_confirm_text in visible_elements:
-            setup_confirm_text.text = '\n'.join([
-                f'{p.name} the {p.race} {JOBS[p.job_id].name}'
-                for p in game.players
-            ])
+            setup_confirm_text.text = "\n".join(
+                [f"{p.name} the {p.race} {JOBS[p.job_id].name}" for p in game.players]
+            )
 
         if game.input_focused:
             input = game.input_focused
             new_cursor = (
-                CURSOR_FULL if pygame.time.get_ticks() % 1000 < 500
-                else CURSOR_EMPTY
+                CURSOR_FULL if pygame.time.get_ticks() % 1000 < 500 else CURSOR_EMPTY
             )
             if new_cursor != input.cursor:
                 input.cursor = new_cursor
 
         # Clear canvas
-        win.fill('black')
+        win.fill("black")
 
         # Draw state
         for element in visible_elements:
@@ -496,5 +630,5 @@ def main():
         clock.tick(60)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

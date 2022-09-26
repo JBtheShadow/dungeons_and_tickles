@@ -1,11 +1,18 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import Enum, auto
 
-from ability import Ability, AbilityID
-from enemy import Enemy, ModifierID
-from reward import Reward, RewardID
-from trap import Trap, TrapID
+from enemy import EnemyID, EnemyInfo, ModifierID
+from reward import RewardID, RewardInfo
+from trap import TrapID, TrapInfo
+
+
+class EncounterType(Enum):
+    NOTHING = auto()
+    ENEMY = auto()
+    TRAP = auto()
+    REWARD = auto()
 
 
 class EncounterID(Enum):
@@ -30,146 +37,233 @@ class EncounterID(Enum):
     DRAGONBORN = auto()
     BLACK_MAGE = auto()
     CERBERUS = auto()
+    TICKLE_SPIDER = auto()
     TREASURE_ROOM = auto()
 
 
-class Encounter:
-    def __init__(self, encounter_class, *args, **kwargs):
-        self.encounter_class = encounter_class
-        self.args = args
-        self.kwargs = kwargs
+@dataclass
+class EncounterInfo:
+    encounter_id: EncounterID
+    encounter_type: EncounterType
+    enemy: EnemyInfo = None
+    trap: TrapInfo = None
+    reward: RewardInfo = None
 
 
 ENCOUNTERS = {
-    EncounterID.ORC: Encounter(Enemy, "Orc", max_st=50, dmg=10),
-    EncounterID.GOBLIN: Encounter(Enemy, "Goblin", max_st=30, dmg=15),
-    EncounterID.KOBOLD: Encounter(Enemy, "Kobold", max_st=35, dmg=15),
-    EncounterID.FLYING_TICKLE_IMPS: Encounter(
-        Enemy,
-        "Flying Tickle Imps",
-        max_st=25,
-        dmg=15,
-        abilities=[
-            Ability(AbilityID.DAMAGE_EVERY_X_TURNS, dmg_dice=(2, 20), turns=5),
-        ],
+    EncounterID.ORC: EncounterInfo(
+        EncounterID.ORC, EncounterType.ENEMY, enemy=EnemyInfo.from_id(EnemyID.ORC)
     ),
-    EncounterID.TICKLE_TRAP: Encounter(
-        Trap, "Tickle Trap", TrapID.DIRECT_DAMAGE, dmg=25
+    EncounterID.GOBLIN: EncounterInfo(
+        EncounterID.GOBLIN, EncounterType.ENEMY, enemy=EnemyInfo.from_id(EnemyID.GOBLIN)
     ),
-    EncounterID.SMALL_TICKLE_SLIME: Encounter(
-        Enemy, "Small Tickle Slime", max_st=25, dmg=10
+    EncounterID.KOBOLD: EncounterInfo(
+        EncounterID.KOBOLD, EncounterType.ENEMY, enemy=EnemyInfo.from_id(EnemyID.KOBOLD)
     ),
-    EncounterID.GARGOYLE: Encounter(Enemy, "Gargoyle", max_st=50, dmg=10),
-    EncounterID.VINE_MONSTER: Encounter(
-        Enemy,
-        "Vine Monster",
-        max_st=5,
-        dmg=15,
-        abilities=[Ability(AbilityID.ALL_DAMAGE_TAKEN_SET_TO_1)],
+    EncounterID.FLYING_TICKLE_IMPS: EncounterInfo(
+        EncounterID.FLYING_TICKLE_IMPS,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.FLYING_TICKLE_IMPS),
     ),
-    EncounterID.CHEST_MIMIC: Encounter(
-        Enemy,
-        "Chest Mimic",
-        dmg=30,
-        abilities=[Ability(AbilityID.FAINT_IN_X_TURNS, turns=5)],
+    EncounterID.TICKLE_TRAP: EncounterInfo(
+        EncounterID.TICKLE_TRAP,
+        EncounterType.TRAP,
+        trap=TrapInfo.from_id(TrapID.DUNGEON_TICKLE_TRAP),
     ),
-    EncounterID.NOTHING: Encounter(None),
-    EncounterID.BIG_RAT: Encounter(Enemy, "Big Rat", max_st=15, dmg=10),
-    EncounterID.TWIN_TAILED_SNAKE: Encounter(
-        Enemy, "Twin-Tailed Snake", max_st=10, dmg=20
+    EncounterID.SMALL_TICKLE_SLIME: EncounterInfo(
+        EncounterID.SMALL_TICKLE_SLIME,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.SMALL_TICKLE_SLIME),
     ),
-    EncounterID.BIG_TICKLE_SLIME: Encounter(
-        Enemy, "Big Tickle Slime", max_st=30, dmg=20
+    EncounterID.GARGOYLE: EncounterInfo(
+        EncounterID.GARGOYLE,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.GARGOYLE),
     ),
-    EncounterID.SKELETON: Encounter(
-        Enemy,
-        "Skeleton",
-        max_st=25,
-        dmg=15,
-        abilities=[Ability(AbilityID.IMMUNE_EVERY_X_TURNS, turns=2)],
+    EncounterID.VINE_MONSTER: EncounterInfo(
+        EncounterID.VINE_MONSTER,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.VINE_MONSTER),
     ),
-    EncounterID.ITEM: Encounter(Reward, RewardID.ITEM),
-    EncounterID.LICH: Encounter(Enemy, "Lich", max_st=50, dmg=25),
-    EncounterID.TICKLE_ZOMBIE: Encounter(
-        Enemy,
-        "Tickle Zombie",
-        max_st=40,
-        dmg=10,
+    EncounterID.CHEST_MIMIC: EncounterInfo(
+        EncounterID.CHEST_MIMIC,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.CHEST_MIMIC),
     ),
-    EncounterID.MUMMY: Encounter(Enemy, "Mummy", max_st=30, dmg=15),
-    EncounterID.DRAGONBORN: Encounter(
-        Enemy,
-        "Dragonborn",
-        max_st=50,
-        dmg=20,
-        abilities=[
-            Ability(AbilityID.DAMAGE_EVERY_X_TURNS, dmg_dice=(3, 6), turns=5),
-            Ability(AbilityID.FIXED_DAMAGE_ON_PLAYER_MISS, dmg=5),
-        ],
+    EncounterID.NOTHING: EncounterInfo(EncounterID.NOTHING, EncounterType.NOTHING),
+    EncounterID.BIG_RAT: EncounterInfo(
+        EncounterID.BIG_RAT,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.BIG_RAT),
     ),
-    EncounterID.BLACK_MAGE: Encounter(
-        Enemy,
-        "Black Mage",
-        max_st=15,
-        dmg=35,
-        abilities=[
-            Ability(AbilityID.DAMAGE_EVERY_X_TURNS, dmg_dice=(1, 10), turns=5),
-        ],
+    EncounterID.TWIN_TAILED_SNAKE: EncounterInfo(
+        EncounterID.TWIN_TAILED_SNAKE,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.TWIN_TAILED_SNAKE),
     ),
-    EncounterID.CERBERUS: Encounter(
-        Enemy,
-        "Cerberus",
-        max_st=30,
-        dmg=15,
-        abilities=[
-            Ability(AbilityID.FIXED_DAMAGE_EVERY_X_HITS, dmg=5, hits=3),
-        ],
+    EncounterID.BIG_TICKLE_SLIME: EncounterInfo(
+        EncounterID.BIG_TICKLE_SLIME,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.BIG_TICKLE_SLIME),
     ),
-    EncounterID.TREASURE_ROOM: Encounter(
-        Reward, RewardID.GOLD_AND_TRINKET, gold_dice=(2, 20, 60)
+    EncounterID.SKELETON: EncounterInfo(
+        EncounterID.SKELETON,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.SKELETON),
+    ),
+    EncounterID.ITEM: EncounterInfo(
+        EncounterID.ITEM, EncounterType.REWARD, reward=RewardInfo.from_id(RewardID.ITEM)
+    ),
+    EncounterID.LICH: EncounterInfo(
+        EncounterID.LICH, EncounterType.ENEMY, enemy=EnemyInfo.from_id(EnemyID.LICH)
+    ),
+    EncounterID.TICKLE_ZOMBIE: EncounterInfo(
+        EncounterID.TICKLE_ZOMBIE,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.TICKLE_ZOMBIE),
+    ),
+    EncounterID.MUMMY: EncounterInfo(
+        EncounterID.MUMMY, EncounterType.ENEMY, enemy=EnemyInfo.from_id(EnemyID.MUMMY)
+    ),
+    EncounterID.DRAGONBORN: EncounterInfo(
+        EncounterID.DRAGONBORN,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.DRAGONBORN),
+    ),
+    EncounterID.BLACK_MAGE: EncounterInfo(
+        EncounterID.BLACK_MAGE,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.BLACK_MAGE),
+    ),
+    EncounterID.CERBERUS: EncounterInfo(
+        EncounterID.CERBERUS,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.CERBERUS),
+    ),
+    EncounterID.TICKLE_SPIDER: EncounterInfo(
+        EncounterID.TICKLE_SPIDER,
+        EncounterType.ENEMY,
+        enemy=EnemyInfo.from_id(EnemyID.TICKLE_SPIDER),
+    ),
+    EncounterID.TREASURE_ROOM: EncounterInfo(
+        EncounterID.TREASURE_ROOM,
+        EncounterType.REWARD,
+        reward=RewardInfo.from_id(RewardID.GOLD_AND_TRINKET),
     ),
 }
 
 
 # Testing
 if __name__ == "__main__":
-    from helpers import dice_roll, dice_roll_advantage, print_dice
-    from item import ITEMS
+    from dice import Dice
+    from enemy import Enemy
+    from item import ItemInfo
 
-    enemy_enc = ENCOUNTERS[EncounterID.DRAGONBORN]
-    enemy = enemy_enc.encounter_class(
-        *enemy_enc.args,
-        level=1,
-        **enemy_enc.kwargs,
-    )
+    enemy = Enemy.from_id(EnemyID.DRAGONBORN, level=1)
     print(enemy)
 
     trap_enc = ENCOUNTERS[EncounterID.TICKLE_TRAP]
-    trap = trap_enc.encounter_class(*trap_enc.args, **trap_enc.kwargs)
+    trap = trap_enc.trap
     print(trap)
 
     reward_enc = ENCOUNTERS[EncounterID.ITEM]
-    reward = reward_enc.encounter_class(*reward_enc.args, **reward_enc.kwargs)
+    reward = reward_enc.reward
     print(reward)
 
-    small_slime_enc = ENCOUNTERS[EncounterID.SMALL_TICKLE_SLIME]
-    big_slime_enc = ENCOUNTERS[EncounterID.BIG_TICKLE_SLIME]
-
     level = 3
-    for enc in [small_slime_enc, big_slime_enc]:
+    for enemy_id in [
+        EnemyID.SMALL_TICKLE_SLIME,
+        EnemyID.BIG_TICKLE_SLIME,
+        EnemyID.BIG_RAT,
+    ]:
         for modifier_id in [ModifierID.TOUGH, ModifierID.BIG]:
-            slime = enc.encounter_class(
-                *enc.args, level=level, modifier_id=modifier_id, **enc.kwargs
-            )
-            trinket = ITEMS[slime.trinket_id]
-            print(f"Level {slime.level} {slime.name} holding a {trinket.name}")
+            enemy2 = Enemy.from_id(enemy_id, level=level, modifier_id=modifier_id)
+            trinket = ItemInfo.from_id(enemy2.trinket_id)
+            print(f"Level {enemy2.level} {enemy2.name} holding a {trinket.name}")
             level += 3
 
-    for dice in [(1, 20), (2, 20), (3, 6, 10), (1, 10, -2)]:
-        dtext = print_dice(*dice)
+    hit_dice = Dice(sides=20)
+    for dice in [
+        Dice(sides=20),
+        Dice(number=2, sides=20),
+        Dice(number=3, modifier=10),
+        Dice(sides=10, modifier=-2),
+    ]:
+        print(f"{dice} -> hit roll:", hit_dice.roll_hit())
+        print(f"{dice} -> hit roll w/ advantage:", hit_dice.roll_advantage())
+        print(f"{dice} -> hit w/ disadvantage:", hit_dice.roll_disadvantage())
+        print(f"{dice} -> damage roll:", dice.roll_damage())
 
-        roll = dice_roll(*dice)
-        roll_adv = dice_roll_advantage(*dice)
+    dmg = Dice(modifier=4)
+    enemy_dmg = 15
 
-        print(f"{dtext} -> regular roll:", roll)
-        print(f"{dtext} -> roll w/ advantage:", roll_adv)
+    player_st = 100
+    enemy_st = 50
+
+    def roll_hits(dice: Dice = Dice(sides=20)):
+        while True:
+            a = dice.roll_hit()
+            b = dice.roll_hit()
+            if a != b:
+                return a, b
+
+    print("=" * 80)
+    print(f"Player at {player_st} ST vs Enemy at {enemy_st} ST")
+    round = 1
+    while True:
+        print("=" * 80)
+        print(f"Round {round}, Player at {player_st} ST, Enemy at {enemy_st} ST")
+
+        # Player's turn
+        player, enemy = roll_hits()
+
+        print("Player attacks the Enemy")
+        print(f"Player rolls {player}")
+        print(f"Enemy rolls {enemy}")
+        if player.nat_crit and enemy.nat_miss:
+            print("Player immediately wins!")
+            break
+        elif player.nat_miss and enemy.nat_crit:
+            print("Player immediately loses!")
+            break
+        elif player < enemy:
+            print("Player missed!")
+        else:
+            player_dmg = dmg.roll_damage()
+            print(f"Player damage: {dmg} = {player_dmg}")
+            points = player_dmg.sum * (2 if player.nat_crit else 1)
+            enemy_st -= points
+            print(f"Player dealt {points} damage!")
+            if enemy_st <= 0:
+                print("Enemy fainted! Player wins!")
+                break
+            else:
+                print(f"Enemy now has {enemy_st} ST")
+
+        print("-" * 80)
+        # Enemy's turn
+        enemy, player = roll_hits()
+
+        print("Enemy attacks the Player")
+        print(f"Enemy rolls {enemy}")
+        print(f"Player rolls {player}")
+        if player.nat_crit and enemy.nat_miss:
+            print("Player immediately wins!")
+            break
+        elif player.nat_miss and enemy.nat_crit:
+            print("Player immediately loses!")
+            break
+        elif player > enemy:
+            print("Enemy missed!")
+        else:
+            print(f"Enemy damage: {enemy_dmg}")
+            points = enemy_dmg * (2 if enemy.nat_crit else 1)
+            player_st -= points
+            print(f"Enemy dealt {points} damage!")
+            if player_st <= 0:
+                print("Player fainted! Player loses!")
+                break
+            else:
+                print(f"Player now has {player_st} ST")
+
+        round += 1

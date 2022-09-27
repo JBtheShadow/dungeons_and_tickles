@@ -1,7 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum, auto
 from random import randint
+
+
+class RollModifierType(Enum):
+    FLAT = auto()
+    AT = auto()
+    HALF_AT = auto()
 
 
 @dataclass
@@ -9,6 +16,11 @@ class Dice:
     number: int = 1
     sides: int = 6
     modifier: int = 0
+    modifier_type: RollModifierType = RollModifierType.FLAT
+    needs_modifier: bool = field(init=False, repr=False)
+
+    def __post_init__(self):
+        self.needs_modifier = self.modifier_type == RollModifierType.FLAT
 
     def __str__(self) -> str:
         if self.modifier > 0:
@@ -74,6 +86,6 @@ class DiceRoll:
             hit_or_miss = " (Miss...)"
 
         if self.rolls_ext:
-            return f"{self.sum}{hit_or_miss}: {self.rolls}; {self.rolls_ext}"
+            return f"{self.sum}{hit_or_miss} {self.rolls}; {self.rolls_ext}"
         else:
-            return f"{self.sum}{hit_or_miss}: {self.rolls}"
+            return f"{self.sum}{hit_or_miss} {self.rolls}"

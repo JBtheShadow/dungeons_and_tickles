@@ -3,9 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from enemy import EnemyID, EnemyInfo, ModifierID
-from reward import RewardID, RewardInfo
-from trap import TrapID, TrapInfo
+from enemy import EnemyID, ModifierID
+from reward import RewardID
+from trap import TrapID
 
 
 class EncounterType(Enum):
@@ -45,129 +45,131 @@ class EncounterID(Enum):
 class EncounterInfo:
     encounter_id: EncounterID
     encounter_type: EncounterType
-    enemy: EnemyInfo = None
-    trap: TrapInfo = None
-    reward: RewardInfo = None
+    enemy_id: EnemyID = None
+    trap_id: TrapID = None
+    reward_id: RewardID = None
 
 
 ENCOUNTERS = {
     EncounterID.ORC: EncounterInfo(
-        EncounterID.ORC, EncounterType.ENEMY, enemy=EnemyInfo.from_id(EnemyID.ORC)
+        EncounterID.ORC, EncounterType.ENEMY, enemy_id=EnemyID.ORC
     ),
     EncounterID.GOBLIN: EncounterInfo(
-        EncounterID.GOBLIN, EncounterType.ENEMY, enemy=EnemyInfo.from_id(EnemyID.GOBLIN)
+        EncounterID.GOBLIN, EncounterType.ENEMY, enemy_id=EnemyID.GOBLIN
     ),
     EncounterID.KOBOLD: EncounterInfo(
-        EncounterID.KOBOLD, EncounterType.ENEMY, enemy=EnemyInfo.from_id(EnemyID.KOBOLD)
+        EncounterID.KOBOLD, EncounterType.ENEMY, enemy_id=EnemyID.KOBOLD
     ),
     EncounterID.FLYING_TICKLE_IMPS: EncounterInfo(
         EncounterID.FLYING_TICKLE_IMPS,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.FLYING_TICKLE_IMPS),
+        enemy_id=EnemyID.FLYING_TICKLE_IMPS,
     ),
     EncounterID.TICKLE_TRAP: EncounterInfo(
         EncounterID.TICKLE_TRAP,
         EncounterType.TRAP,
-        trap=TrapInfo.from_id(TrapID.DUNGEON_TICKLE_TRAP),
+        trap_id=TrapID.DUNGEON_TICKLE_TRAP,
     ),
     EncounterID.SMALL_TICKLE_SLIME: EncounterInfo(
         EncounterID.SMALL_TICKLE_SLIME,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.SMALL_TICKLE_SLIME),
+        enemy_id=EnemyID.SMALL_TICKLE_SLIME,
     ),
     EncounterID.GARGOYLE: EncounterInfo(
         EncounterID.GARGOYLE,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.GARGOYLE),
+        enemy_id=EnemyID.GARGOYLE,
     ),
     EncounterID.VINE_MONSTER: EncounterInfo(
         EncounterID.VINE_MONSTER,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.VINE_MONSTER),
+        enemy_id=EnemyID.VINE_MONSTER,
     ),
     EncounterID.CHEST_MIMIC: EncounterInfo(
         EncounterID.CHEST_MIMIC,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.CHEST_MIMIC),
+        enemy_id=EnemyID.CHEST_MIMIC,
     ),
     EncounterID.NOTHING: EncounterInfo(EncounterID.NOTHING, EncounterType.NOTHING),
     EncounterID.BIG_RAT: EncounterInfo(
         EncounterID.BIG_RAT,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.BIG_RAT),
+        enemy_id=EnemyID.BIG_RAT,
     ),
     EncounterID.TWIN_TAILED_SNAKE: EncounterInfo(
         EncounterID.TWIN_TAILED_SNAKE,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.TWIN_TAILED_SNAKE),
+        enemy_id=EnemyID.TWIN_TAILED_SNAKE,
     ),
     EncounterID.BIG_TICKLE_SLIME: EncounterInfo(
         EncounterID.BIG_TICKLE_SLIME,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.BIG_TICKLE_SLIME),
+        enemy_id=EnemyID.BIG_TICKLE_SLIME,
     ),
     EncounterID.SKELETON: EncounterInfo(
         EncounterID.SKELETON,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.SKELETON),
+        enemy_id=EnemyID.SKELETON,
     ),
     EncounterID.ITEM: EncounterInfo(
-        EncounterID.ITEM, EncounterType.REWARD, reward=RewardInfo.from_id(RewardID.ITEM)
+        EncounterID.ITEM, EncounterType.REWARD, reward_id=RewardID.ITEM
     ),
     EncounterID.LICH: EncounterInfo(
-        EncounterID.LICH, EncounterType.ENEMY, enemy=EnemyInfo.from_id(EnemyID.LICH)
+        EncounterID.LICH, EncounterType.ENEMY, enemy_id=EnemyID.LICH
     ),
     EncounterID.TICKLE_ZOMBIE: EncounterInfo(
         EncounterID.TICKLE_ZOMBIE,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.TICKLE_ZOMBIE),
+        enemy_id=EnemyID.TICKLE_ZOMBIE,
     ),
     EncounterID.MUMMY: EncounterInfo(
-        EncounterID.MUMMY, EncounterType.ENEMY, enemy=EnemyInfo.from_id(EnemyID.MUMMY)
+        EncounterID.MUMMY, EncounterType.ENEMY, enemy_id=EnemyID.MUMMY
     ),
     EncounterID.DRAGONBORN: EncounterInfo(
         EncounterID.DRAGONBORN,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.DRAGONBORN),
+        enemy_id=EnemyID.DRAGONBORN,
     ),
     EncounterID.BLACK_MAGE: EncounterInfo(
         EncounterID.BLACK_MAGE,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.BLACK_MAGE),
+        enemy_id=EnemyID.BLACK_MAGE,
     ),
     EncounterID.CERBERUS: EncounterInfo(
         EncounterID.CERBERUS,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.CERBERUS),
+        enemy_id=EnemyID.CERBERUS,
     ),
     EncounterID.TICKLE_SPIDER: EncounterInfo(
         EncounterID.TICKLE_SPIDER,
         EncounterType.ENEMY,
-        enemy=EnemyInfo.from_id(EnemyID.TICKLE_SPIDER),
+        enemy_id=EnemyID.TICKLE_SPIDER,
     ),
     EncounterID.TREASURE_ROOM: EncounterInfo(
         EncounterID.TREASURE_ROOM,
         EncounterType.REWARD,
-        reward=RewardInfo.from_id(RewardID.GOLD_AND_TRINKET),
+        reward_id=RewardID.GOLD_AND_TRINKET,
     ),
 }
 
 
-# Testing
-if __name__ == "__main__":
+def run_tests():
     from dice import Dice
     from enemy import Enemy
     from item import ItemInfo
+    from reward import RewardInfo
+    from trap import TrapInfo
 
-    enemy = Enemy.from_id(EnemyID.DRAGONBORN, level=1)
+    enemy_enc = ENCOUNTERS[EncounterID.DRAGONBORN]
+    enemy = Enemy.from_id(enemy_enc.enemy_id, level=1)
     print(enemy)
 
     trap_enc = ENCOUNTERS[EncounterID.TICKLE_TRAP]
-    trap = trap_enc.trap
+    trap = TrapInfo.from_id(trap_enc.trap_id)
     print(trap)
 
     reward_enc = ENCOUNTERS[EncounterID.ITEM]
-    reward = reward_enc.reward
+    reward = RewardInfo.from_id(reward_enc.reward_id)
     print(reward)
 
     level = 3
@@ -209,17 +211,15 @@ if __name__ == "__main__":
 
     print("=" * 80)
     print(f"Player at {player_st} ST vs Enemy at {enemy_st} ST")
-    round = 1
+    turn = 1
     while True:
         print("=" * 80)
-        print(f"Round {round}, Player at {player_st} ST, Enemy at {enemy_st} ST")
+        print(f"Battle turn {turn}, Player at {player_st} ST, Enemy at {enemy_st} ST")
 
         # Player's turn
         player, enemy = roll_hits()
 
-        print("Player attacks the Enemy")
-        print(f"Player rolls {player}")
-        print(f"Enemy rolls {enemy}")
+        print(f"Player ({player.sum}) attacks the Enemy ({enemy.sum})")
         if player.nat_crit and enemy.nat_miss:
             print("Player immediately wins!")
             break
@@ -229,6 +229,7 @@ if __name__ == "__main__":
         elif player < enemy:
             print("Player missed!")
         else:
+            print("Player has hit!")
             player_dmg = dmg.roll_damage()
             print(f"Player damage: {dmg} = {player_dmg}")
             points = player_dmg.sum * (2 if player.nat_crit else 1)
@@ -244,9 +245,7 @@ if __name__ == "__main__":
         # Enemy's turn
         enemy, player = roll_hits()
 
-        print("Enemy attacks the Player")
-        print(f"Enemy rolls {enemy}")
-        print(f"Player rolls {player}")
+        print(f"Enemy ({enemy.sum}) attacks the Player ({player.sum})")
         if player.nat_crit and enemy.nat_miss:
             print("Player immediately wins!")
             break
@@ -256,6 +255,7 @@ if __name__ == "__main__":
         elif player > enemy:
             print("Enemy missed!")
         else:
+            print("Enemy has hit!")
             print(f"Enemy damage: {enemy_dmg}")
             points = enemy_dmg * (2 if enemy.nat_crit else 1)
             player_st -= points
@@ -266,4 +266,8 @@ if __name__ == "__main__":
             else:
                 print(f"Player now has {player_st} ST")
 
-        round += 1
+        turn += 1
+
+
+if __name__ == "__main__":
+    run_tests()

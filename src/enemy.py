@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from random import choice
 
-from ability import AbilityID, AbilityInfo
-from item import TRINKETS, ItemID
+from ability import AbilityID
+from item import TRINKET_IDS, ItemID
 
 
 class EnemyID(Enum):
@@ -49,7 +49,7 @@ class EnemyInfo:
     undead: bool = False
     demonic: bool = False
     can_master_weapons: bool = False
-    abilities: list[AbilityInfo] = field(default_factory=list)
+    ability_ids: list[AbilityID] = field(default_factory=list)
 
     @staticmethod
     def from_id(enemy_id: EnemyID):
@@ -78,20 +78,15 @@ class Enemy(EnemyInfo):
 
     def __post_init__(self):
         self.countdown = 0
-        ability_ids = {}
-        if self.abilities:
-            ability_ids = {item.ability_id for item in self.abilities}
 
-        one_dmg = False
-        if AbilityID.VINE_MONSTER_DAMAGE_RESISTANCE in ability_ids:
-            one_dmg = True
+        one_dmg = AbilityID.VINE_MONSTER_DAMAGE_RESISTANCE in self.ability_ids
 
         # Level
         if self.level:
             self.max_st += (10 if not one_dmg else 1) * self.level
             self.dmg += 10 * self.level
 
-            if AbilityID.CHEST_MIMIC_SURVIVAL_BATTLE in ability_ids:
+            if AbilityID.CHEST_MIMIC_SURVIVAL_BATTLE in self.ability_ids:
                 self.countdown = self.level + 5
 
         # Modifier
@@ -119,35 +114,31 @@ class Enemy(EnemyInfo):
         if self.modifier_id == ModifierID.BLESSED_BY_LAUGHTER:
             self.name = "Blessed " + self.name
             if one_dmg:
-                self.abilities.append(
-                    AbilityInfo.from_id(AbilityID.BLESSED_VINE_MONSTER)
-                )
+                self.ability_ids.append(AbilityID.BLESSED_VINE_MONSTER)
             else:
-                self.abilities.append(AbilityInfo.from_id(AbilityID.BLESSED_ENEMY))
+                self.ability_ids.append(AbilityID.BLESSED_ENEMY)
         if self.modifier_id == ModifierID.CURSED:
             self.name = "Cursed " + self.name
-            self.abilities.append(AbilityInfo.from_id(AbilityID.CURSED_ENEMY))
+            self.ability_ids.append(AbilityID.CURSED_ENEMY)
 
         # Trinkets
         if not self.trinket_id and self.level and self.level % 3 == 0:
-            self.trinket_id = choice(list(TRINKETS))
+            self.trinket_id = choice(list(TRINKET_IDS))
 
         if self.trinket_id == ItemID.GRINDSTONE:
             self.dmg += 2
         if self.trinket_id == ItemID.RING_ENDURANCE:
             if self.max_ep <= 0:
                 self.max_ep = 1
-            self.abilities.append(AbilityInfo.from_id(AbilityID.RING_ENDURANCE_ENEMY))
+            self.ability_ids.append(AbilityID.RING_ENDURANCE_ENEMY)
         if self.trinket_id == ItemID.GOLDEN_FEATHER:
             self.gold += 10
         if self.trinket_id == ItemID.BROKEN_FEATHERARROW:
-            self.abilities.append(
-                AbilityInfo.from_id(AbilityID.BROKEN_FEATHERARROW_ENEMY)
-            )
+            self.ability_ids.append(AbilityID.BROKEN_FEATHERARROW_ENEMY)
         if self.trinket_id == ItemID.LIQUID_LAUGHTER_VIAL:
-            self.abilities.append(AbilityInfo.from_id(AbilityID.LIQUID_LAUGHTER_VIAL))
+            self.ability_ids.append(AbilityID.LIQUID_LAUGHTER_VIAL)
         if self.trinket_id == ItemID.SWIFT_FEATHER:
-            self.abilities.append(AbilityInfo.from_id(AbilityID.SWIFT_FEATHER))
+            self.ability_ids.append(AbilityID.SWIFT_FEATHER)
 
         # Final stats
         self.st = self.max_st
@@ -179,7 +170,7 @@ _ENEMIES = {
         dmg=15,
         demonic=True,
         can_master_weapons=True,
-        abilities=[AbilityInfo.from_id(AbilityID.FLYING_IMP_TICKLE_RUSH)],
+        ability_ids=[AbilityID.FLYING_IMP_TICKLE_RUSH],
     ),
     EnemyID.SMALL_TICKLE_SLIME: EnemyInfo(
         enemy_id=EnemyID.SMALL_TICKLE_SLIME,
@@ -200,13 +191,13 @@ _ENEMIES = {
         name="Vine Monster",
         max_st=5,
         dmg=15,
-        abilities=[AbilityInfo.from_id(AbilityID.VINE_MONSTER_DAMAGE_RESISTANCE)],
+        ability_ids=[AbilityID.VINE_MONSTER_DAMAGE_RESISTANCE],
     ),
     EnemyID.CHEST_MIMIC: EnemyInfo(
         enemy_id=EnemyID.CHEST_MIMIC,
         name="Chest Mimic",
         dmg=30,
-        abilities=[AbilityInfo.from_id(AbilityID.CHEST_MIMIC_SURVIVAL_BATTLE)],
+        ability_ids=[AbilityID.CHEST_MIMIC_SURVIVAL_BATTLE],
     ),
     EnemyID.BIG_RAT: EnemyInfo(
         enemy_id=EnemyID.BIG_RAT, name="Big Rat", max_st=15, dmg=10
@@ -224,7 +215,7 @@ _ENEMIES = {
         dmg=15,
         undead=True,
         can_master_weapons=True,
-        abilities=[AbilityInfo.from_id(AbilityID.SKELETON_DAMAGE_IMMUNITY)],
+        ability_ids=[AbilityID.SKELETON_DAMAGE_IMMUNITY],
     ),
     EnemyID.LICH: EnemyInfo(
         enemy_id=EnemyID.LICH,
@@ -255,14 +246,14 @@ _ENEMIES = {
         max_st=50,
         dmg=20,
         can_master_weapons=True,
-        abilities=[AbilityInfo.from_id(AbilityID.DRAGONBORN_BREATH_ATTACK)],
+        ability_ids=[AbilityID.DRAGONBORN_BREATH_ATTACK],
     ),
     EnemyID.BLACK_MAGE: EnemyInfo(
         enemy_id=EnemyID.BLACK_MAGE,
         name="Black Mage",
         max_st=15,
         dmg=35,
-        abilities=[AbilityInfo.from_id(AbilityID.BLACK_MAGE_SPELL)],
+        ability_ids=[AbilityID.BLACK_MAGE_SPELL],
     ),
     EnemyID.CERBERUS: EnemyInfo(
         enemy_id=EnemyID.CERBERUS,
@@ -270,13 +261,13 @@ _ENEMIES = {
         max_st=30,
         dmg=15,
         demonic=True,
-        abilities=[AbilityInfo.from_id(AbilityID.CERBERUS_TRIPLE_HIT)],
+        ability_ids=[AbilityID.CERBERUS_TRIPLE_HIT],
     ),
     EnemyID.TICKLE_SPIDER: EnemyInfo(
         enemy_id=EnemyID.TICKLE_SPIDER,
         name="Anthropomorphic Tickle Spider",
         max_st=15,
         dmg=10,
-        abilities=[AbilityInfo.from_id(AbilityID.TICKLE_SPIDER_WEB)],
+        ability_ids=[AbilityID.TICKLE_SPIDER_WEB],
     ),
 }

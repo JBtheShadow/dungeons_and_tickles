@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, auto
+
+from passive import PassiveID
 
 
 class JobID(Enum):
@@ -23,10 +25,12 @@ class JobID(Enum):
     BEASTMASTER = auto()
     ALCHEMIST = auto()
     GAMBLER = auto()
+    TRAPPER = auto()
 
 
 @dataclass
 class Job:
+    job_id: JobID
     name: str
     description: str
     st: int = 0
@@ -36,6 +40,7 @@ class Job:
     gold: int = 0
     alignment: str = None
     faith: int = 0
+    passive_ids: list[PassiveID] = field(default_factory=list)
 
     def __post_init__(self):
         self.st += 100
@@ -47,62 +52,111 @@ class Job:
 
 JOBS = {
     JobID.WARRIOR: Job(
-        "Warrior",
-        "Made for combat\n" "Naturally grows stronger each round",
+        job_id=JobID.WARRIOR,
+        name="Warrior",
+        description="Made for combat\n" "Naturally grows stronger each round",
         at=2,
         st=15,
     ),
     JobID.WIZARD: Job(
-        "Wizard", "Made for casting spells\n" "Learn new spells each round", mp=20
+        job_id=JobID.WIZARD,
+        name="Wizard",
+        description="Made for casting spells\n" "Learn new spells each round",
+        mp=20,
     ),
-    JobID.ROGUE: Job("Rogue", "Steal for profit\n" "Shopkeepers hate them"),
+    JobID.ROGUE: Job(
+        job_id=JobID.ROGUE,
+        name="Rogue",
+        description="Steal for profit\n" "Shopkeepers hate them",
+    ),
     JobID.PALADIN: Job(
-        "Paladin", "Upholder of the law and bane of the undead", ep=2, st=25
+        job_id=JobID.ROGUE,
+        name="Paladin",
+        description="Upholder of the law and bane of the undead",
+        ep=2,
+        st=25,
     ),
     JobID.PRIEST: Job(
-        "Priest",
-        "Made for healing\n" "Helping others earns rewards",
+        job_id=JobID.PRIEST,
+        name="Priest",
+        description="Made for healing\n" "Helping others earns rewards",
         alignment="good",
         faith=3,
     ),
     JobID.SCAVENGER: Job(
-        "Scavenger", "Find items and coin in the wild\n" "Some shopkeepers hate them"
+        job_id=JobID.SCAVENGER,
+        name="Scavenger",
+        description="Find items and coin in the wild\n" "Some shopkeepers hate them",
     ),
-    JobID.LIBRARIAN: Job("Librarian", "Bookworm", mp=30),
+    JobID.LIBRARIAN: Job(
+        job_id=JobID.LIBRARIAN, name="Librarian", description="Bookworm", mp=30
+    ),
     JobID.LICH: Job(
-        "Lich",
-        "Summoner of minions\n" "Suffers no penalty upon fainting",
+        job_id=JobID.LICH,
+        name="Lich",
+        description="Summoner of minions\n" "Suffers no penalty upon fainting",
         alignment="evil",
     ),
-    JobID.PROSPECTOR: Job("Prospector", "Made for mining"),
     JobID.PROSPECTOR: Job(
-        "Craftsman", "Can craft their own items\n" "Some shopkeepers hate them"
+        job_id=JobID.PROSPECTOR, name="Prospector", description="Made for mining"
     ),
-    JobID.LEE: Job("Lee", "Pacifist, wins battles by surviving long enough"),
-    JobID.GUARD: Job("Guard", "Member of the guild\n" "Better and cheaper skills"),
+    JobID.PROSPECTOR: Job(
+        job_id=JobID.PROSPECTOR,
+        name="Craftsman",
+        description="Can craft their own items\n" "Some shopkeepers hate them",
+    ),
+    JobID.LEE: Job(
+        job_id=JobID.LEE,
+        name="Lee",
+        description="Pacifist, wins battles by surviving long enough",
+    ),
+    JobID.GUARD: Job(
+        job_id=JobID.GUARD,
+        name="Guard",
+        description="Member of the guild\n" "Better and cheaper skills",
+    ),
     JobID.CULTIST: Job(
-        "Tickle Cultist",
-        "Mess with your opponents!\n"
+        job_id=JobID.CULTIST,
+        name="Tickle Cultist",
+        description="Mess with your opponents!\n"
         "Players can opt to become a Tickle Cultist at any point\n"
         "at the cost of losing access to everything from previous class",
         mp=10,
         alignment="evil",
     ),
     JobID.BARBARIAN: Job(
-        "Barbarian",
-        "Rage is your only friend\n" "Unable to use ranged weapons or cast spells",
+        job_id=JobID.BARBARIAN,
+        name="Barbarian",
+        description="Rage is your only friend\n"
+        "Unable to use ranged weapons or cast spells",
         st=30,
         at=3,
     ),
     JobID.SPIRITER: Job(
-        "Spiriter",
-        "Use the power of spirits to change your fate\n" "Or your oponents'!",
+        job_id=JobID.SPIRITER,
+        name="Spiriter",
+        description="Use the power of spirits to change your fate\n"
+        "Or your oponents'!",
     ),
     JobID.BEASTMASTER: Job(
-        "Beastmaster", "Tame defeated beasts to enlist them into your cause"
+        job_id=JobID.BEASTMASTER,
+        name="Beastmaster",
+        description="Tame defeated beasts to enlist them into your cause",
     ),
     JobID.ALCHEMIST: Job(
-        "Alchemist", "Craft better potions\n" "Shopkeepers hate them", mp=10
+        job_id=JobID.ALCHEMIST,
+        name="Alchemist",
+        description="Craft better potions\n" "Shopkeepers hate them",
+        mp=10,
     ),
-    JobID.GAMBLER: Job("Gambler", "Risk taker, double or nothing"),
+    JobID.GAMBLER: Job(
+        job_id=JobID.GAMBLER,
+        name="Gambler",
+        description="Risk taker, double or nothing",
+    ),
+    JobID.TRAPPER: Job(
+        job_id=JobID.TRAPPER,
+        name="Trapper",
+        description="Expert at trapping others while avoiding getting caught",
+    ),
 }

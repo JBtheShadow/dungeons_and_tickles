@@ -13,6 +13,7 @@ class TrapID(Enum):
     TOLLBOOTH = auto()
     TICKLE_GLUE_TRAP = auto()
     TRIPWIRE = auto()
+    STOCKS_TELEPORTER = auto()
 
 
 @dataclass
@@ -56,5 +57,19 @@ _TRAPS = {
         name="Tripwire",
         description="When triggered if target rolls lower than owner then owner steals "
         "an item and tickles target for 1d6+AT damage",
+    ),
+    TrapID.STOCKS_TELEPORTER: TrapInfo(
+        trap_id=TrapID.STOCKS_TELEPORTER,
+        name="Stocks Teleporter",
+        description="When a player visits a location roll against the trapper "
+        "to check if they see an almost invisible gray pad on the floor which "
+        "when stepped on teleports the target to the public stocks\n"
+        "Targets on the public stocks have to spend 2 actions to get out and "
+        "are dealt 15 ST damage as they're tickled by the town inhabitants. "
+        "Lacking actions, they remain stuck until their next turn.\n"
+        "Other players are welcome to spend an action and deal 1d6+AT to the "
+        "stuck player, while the trapper can do so at no cost.\n"
+        "Players in the public stocks may be tickled by anyone without "
+        "incurring any faith penalties",
     ),
 }

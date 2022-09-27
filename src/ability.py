@@ -3,20 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum, auto
 
-# class StatID(Enum):
-#     AT = auto()
-
-
-# class StatusID(Enum):
-#     LGI = auto()  # Laughing Gas Intoxication
-#     TS = auto()  # Ticklish Sensations
-#     REGEN = auto()
-#     LRA = auto()  # Laugh Resist Aura
-#     EVADE = auto()
-#     BLIND = auto()
-#     WEAKEN = auto()
-#     STRENGTHEN = auto()
-
 
 class AbilityID(Enum):
 
@@ -24,13 +10,26 @@ class AbilityID(Enum):
     SMOKE_BOMB = auto()
     PICKAXE = auto()
     LUCK_POTION = auto()
+    ENHANCED_LUCK_POTION = auto()
     POTION_VERSATILITY = auto()
+    ENHANCED_VERSATILITY_POTION = auto()
     BOOK_TICKLISH_CURSES = auto()
     PENDULUM = auto()
     MAGIC_BOOK = auto()
     FOUR_LEAF_CLOVER = auto()
     AMULET_PROTECTION = auto()
     NECKLACE_FORTUNE = auto()
+    STIRRUPS_STEALTH = auto()
+    POTION_ENHANCER = auto()
+    VIP_MINE_PASS = auto()
+    LUCKY_COIN = auto()
+    RIGGED_DIE = auto()
+    PIGGYBANK = auto()
+    PEACOCK_POTION = auto()
+    KOBOLD_PLUSHIE = auto()
+    HEADBAND_RETRIBUTION = auto()
+    ANKLET_RETRIBUTION = auto()
+    CAMPING_EQUIPMENT = auto()
 
     # Enemy abilities
     FLYING_IMP_TICKLE_RUSH = auto()
@@ -88,10 +87,21 @@ _ABILITIES = {
         name="Luck Potion Effect",
         description="+10 modifier to any roll",
     ),
+    AbilityID.ENHANCED_LUCK_POTION: AbilityInfo(
+        ability_id=AbilityID.ENHANCED_LUCK_POTION,
+        name="Enhanced Luck Potion Effect",
+        description="+15 Modifier to any non attack roll or makes "
+        "an attack hit automatically",
+    ),
     AbilityID.POTION_VERSATILITY: AbilityInfo(
         ability_id=AbilityID.POTION_VERSATILITY,
         name="Potion of Versatility Effect",
         description="+5 modifier for whole battle",
+    ),
+    AbilityID.ENHANCED_VERSATILITY_POTION: AbilityInfo(
+        ability_id=AbilityID.ENHANCED_VERSATILITY_POTION,
+        name="Potion of Versatility Effect",
+        description="Advantage rolls for the whole battle",
     ),
     AbilityID.BOOK_TICKLISH_CURSES: AbilityInfo(
         ability_id=AbilityID.BOOK_TICKLISH_CURSES,
@@ -127,6 +137,74 @@ _ABILITIES = {
         ability_id=AbilityID.NECKLACE_FORTUNE,
         name="Necklace of Fortune Effect",
         description="Increased gold gained from defeating monsters",
+    ),
+    AbilityID.STIRRUPS_STEALTH: AbilityInfo(
+        ability_id=AbilityID.STIRRUPS_STEALTH,
+        name="Stirrups of Stealth Effect",
+        description="Allow you to bypass an enemy encounter and move up a floor",
+    ),
+    AbilityID.POTION_ENHANCER: AbilityInfo(
+        ability_id=AbilityID.POTION_ENHANCER,
+        name="Potion Enhancer Effect",
+        description="Improves the effects of a potion",
+    ),
+    AbilityID.VIP_MINE_PASS: AbilityInfo(
+        ability_id=AbilityID.VIP_MINE_PASS,
+        name="VIP Mine Pass Effect",
+        description="Gain double gold from the mines for one round",
+    ),
+    AbilityID.LUCKY_COIN: AbilityInfo(
+        ability_id=AbilityID.LUCKY_COIN,
+        name="Lucky Coin Effect",
+        description="Reroll a failed dice roll once\n"
+        "Afterwards, your next three dice rolls are increased by 2",
+    ),
+    AbilityID.RIGGED_DIE: AbilityInfo(
+        ability_id=AbilityID.RIGGED_DIE,
+        name="Rigged Die Effect",
+        description="Set the die of any result you desire, "
+        "can be used on other players' turns as well",
+    ),
+    AbilityID.PIGGYBANK: AbilityInfo(
+        ability_id=AbilityID.PIGGYBANK,
+        name="Piggybank Effect",
+        description="Prevents item loss and lets you keep half of your gold "
+        "whenever the user faints. Gets destroyed afterwards",
+    ),
+    AbilityID.PEACOCK_POTION: AbilityInfo(
+        ability_id=AbilityID.PEACOCK_POTION,
+        name="Peacock Potion Effect",
+        description="You start laughing, feeling your most ticklish spots "
+        "get tickled by feathers. May curse or bless you with the same "
+        "effects granted by the Magical Peacock",
+    ),
+    AbilityID.KOBOLD_PLUSHIE: AbilityInfo(
+        ability_id=AbilityID.KOBOLD_PLUSHIE,
+        name="Kobold Plushie Effect",
+        description="Simply tickle a part of the plushie's body and think of "
+        "who you wish affect. Remove 1 EP or deal 1d10+AT damage to the "
+        "afflicted player in addition to one of the effects below:\n"
+        " - Ribs/pits: target temporarily loses half of their AT\n"
+        " - Belly/sides: target loses half of their EP\n"
+        " - Legs/feet: target losts 1 action on their turn\n"
+        "After the three uses are up you may keep the plushie as a dummy item",
+    ),
+    AbilityID.HEADBAND_RETRIBUTION: AbilityInfo(
+        ability_id=AbilityID.HEADBAND_RETRIBUTION,
+        name="Headband of Retribution Effect",
+        description="Returns half the ST damage taken back to the attacker",
+    ),
+    AbilityID.ANKLET_RETRIBUTION: AbilityInfo(
+        ability_id=AbilityID.ANKLET_RETRIBUTION,
+        name="Anklet of Retribution Effect",
+        description="Returns 1/10 the ST damage taken back to the attacker",
+    ),
+    AbilityID.CAMPING_EQUIPMENT: AbilityInfo(
+        ability_id=AbilityID.CAMPING_EQUIPMENT,
+        name="Camping Equipment Effect",
+        description="May be used after defeating a monster at the dungeon to "
+        "restore 1/2 of your ST, MP and 1 EP. Allows for an extra fight at no "
+        "action cost",
     ),
     # Enemy abilities
     AbilityID.FLYING_IMP_TICKLE_RUSH: AbilityInfo(

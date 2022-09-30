@@ -1,30 +1,29 @@
 from __future__ import annotations
 
 import sys
-from abc import ABC
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Callable
+from functools import partial
+from typing import Protocol
 
 import pygame
 
 from job import JOBS, JobID
-
-WIN_WIDTH = 1280
-WIN_HEIGHT = 720
-
-WHITE = "white"
-CYAN = "cyan"
-YELLOW = "yellow"
-RED = "red"
-
-CURSOR_NONE = ""
-CURSOR_EMPTY = " "
-CURSOR_FULL = "■"
-
-
-def nop():
-    pass
+from ui import (
+    CURSOR_EMPTY,
+    CURSOR_FULL,
+    CURSOR_NONE,
+    CYAN,
+    RED,
+    WIN_HEIGHT,
+    WIN_WIDTH,
+    YELLOW,
+    Align,
+    Button,
+    Input,
+    Text,
+    VAlign,
+)
 
 
 def quit_to_desktop():
@@ -33,33 +32,6 @@ def quit_to_desktop():
 
 def set_focus(game: GameState, element: Input):
     game.input_focused = element
-
-
-def draw_text(win: pygame.Surface, text: Text):
-    bounds = text.bounds()
-
-    color = text.color
-    if text.hover_color:
-        x, y = pygame.mouse.get_pos()
-        if bounds.left <= x <= bounds.right and bounds.top <= y <= bounds.bottom:
-            color = text.hover_color
-
-    lines = text.text.split("\n")
-    text_surf = pygame.Surface((bounds.width, bounds.height))
-    offset_y = 0
-    step_y = int(text.font.get_linesize() * 1.4)
-    for item in lines:
-        t_surf = text.font.render(item, True, color)
-        t_rect = t_surf.get_rect()
-        if text.align == Align.CENTER:
-            t_rect.centerx = bounds.width // 2
-        elif text.align == Align.RIGHT:
-            t_rect.right = bounds.width
-        t_rect.top = offset_y
-        offset_y += step_y
-        text_surf.blit(t_surf, t_rect)
-
-    win.blit(text_surf, bounds)
 
 
 def change_player_count(state: GameState, value):
@@ -109,119 +81,15 @@ def keyboard_input(event, obj, field):
         setattr(obj, field, getattr(obj, field) + event.unicode)
 
 
-@dataclass
-class UIElement(ABC):
-    x: int
-    y: int
-
-    def size(self) -> tuple[int, int]:
-        pass
+class UIElement(Protocol):
+    def draw(self) -> None:
+        ...
 
     def bounds(self) -> pygame.Rect:
-        pass
-
-    def draw(self, win: pygame.Surface) -> None:
-        pass
+        ...
 
     def click(self) -> None:
-        pass
-
-
-class Align(Enum):
-    LEFT = auto()
-    CENTER = auto()
-    RIGHT = auto()
-
-
-class VAlign(Enum):
-    TOP = auto()
-    MIDDLE = auto()
-    BOTTOM = auto()
-
-
-@dataclass
-class Text(UIElement):
-    text: str
-    font: pygame.font.Font
-    align: Align = Align.LEFT
-    v_align: VAlign = VAlign.TOP
-    color: str = WHITE
-    hover_color: str = None
-
-    def size(self):
-        lines = self.text.split("\n")
-        sizes = [self.font.size(text) for text in lines]
-        font_size = self.font.get_linesize()
-        width = max(map(lambda x: x[0], sizes))
-        height = len(sizes) * font_size + 0.4 * int((len(sizes) - 1) * font_size)
-        return width, height
-
-    def bounds(self):
-        bounds = pygame.Rect(0, 0, *self.size())
-        if self.align == Align.CENTER:
-            bounds.centerx = WIN_WIDTH // 2 + self.x
-        elif self.align == Align.RIGHT:
-            bounds.right = WIN_WIDTH - self.x
-        else:
-            bounds.left = self.x
-        if self.v_align == VAlign.MIDDLE:
-            bounds.centery = WIN_HEIGHT // 2 + self.y
-        elif self.v_align == VAlign.BOTTOM:
-            bounds.bottom = WIN_HEIGHT - self.y
-        else:
-            bounds.top = self.y
-        return bounds
-
-    def draw(self, win):
-        draw_text(win, self)
-
-
-@dataclass
-class Button(Text):
-    func: Callable = None
-    func_args: list = None
-    func_kwargs: dict = None
-
-    def __post_init__(self):
-        self.func = self.func or nop
-        self.func_args = self.func_args or []
-        self.func_kwargs = self.func_kwargs or {}
-
-    def click(self) -> None:
-        self.func(*self.func_args, **self.func_kwargs)
-
-
-@dataclass
-class Input(Text):
-    focus: Callable[[GameState, Input], None] = None
-    game: GameState = None
-    _value: str = field(init=False)
-    _cursor: str = field(init=False)
-
-    def __post_init__(self):
-        self._value = self.text
-        self._cursor = CURSOR_NONE
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, x):
-        self._value = x
-        self.text = self._value + self._cursor
-
-    @property
-    def cursor(self):
-        return self._cursor
-
-    @cursor.setter
-    def cursor(self, x):
-        self._cursor = x
-        self.text = self._value + self._cursor
-
-    def click(self) -> None:
-        self.focus(self.game, self)
+        ...
 
 
 @dataclass
@@ -231,11 +99,11 @@ class Player:
     job_id: JobID = JobID.WARRIOR
 
 
-class Screen:
-    def __init__(self, x=0, y=0, width=WIN_WIDTH, height=WIN_HEIGHT, elements=None):
-        self.win = pygame.Surface((width, height))
-        self.rect = self.win.get_rect(topleft=(x, y))
-        self.elements = elements or []
+# class Screen:
+#     def __init__(self, x=0, y=0, width=WIN_WIDTH, height=WIN_HEIGHT, elements=None):
+#         self.win = pygame.Surface((width, height))
+#         self.rect = self.win.get_rect(topleft=(x, y))
+#         self.elements = elements or []
 
 
 class GameState:
@@ -264,6 +132,7 @@ def main():
     clock = pygame.time.Clock()
 
     game = GameState()
+    on_focus = partial(set_focus, game)
 
     # Fonts
     default_font = pygame.font.SysFont("Lucida Console", 15)
@@ -289,38 +158,44 @@ def main():
             ),
             Text(0, 250, "What would you like to do?", default_font, Align.CENTER),
             Button(
-                0,
-                320,
-                "Start a new game (overwrites current save)",
-                medium_font,
-                Align.CENTER,
-                VAlign.TOP,
-                CYAN,
-                RED,
+                Text(
+                    0,
+                    320,
+                    "Start a new game (overwrites current save)",
+                    medium_font,
+                    Align.CENTER,
+                    VAlign.TOP,
+                    CYAN,
+                    RED,
+                ),
                 change_screen,
                 [game, ScreenID.PLAYER_COUNT],
             ),
             Button(
-                0,
-                370,
-                "Load last saved game (if any)",
-                medium_font,
-                Align.CENTER,
-                VAlign.TOP,
-                CYAN,
-                RED,
+                Text(
+                    0,
+                    370,
+                    "Load last saved game (if any)",
+                    medium_font,
+                    Align.CENTER,
+                    VAlign.TOP,
+                    CYAN,
+                    RED,
+                ),
                 change_screen,
                 [game, ScreenID.PLAYER_COUNT],
             ),
             Button(
-                4,
-                420,
-                "Quit to desktop",
-                medium_font,
-                Align.CENTER,
-                VAlign.TOP,
-                CYAN,
-                RED,
+                Text(
+                    4,
+                    420,
+                    "Quit to desktop",
+                    medium_font,
+                    Align.CENTER,
+                    VAlign.TOP,
+                    CYAN,
+                    RED,
+                ),
                 quit_to_desktop,
             ),
             (fps_text := Text(10, 10, "", default_font, v_align=VAlign.BOTTOM)),
@@ -334,14 +209,7 @@ def main():
                 Align.CENTER,
             ),
             Button(
-                -30,
-                350,
-                "-",
-                option_font,
-                Align.CENTER,
-                VAlign.TOP,
-                YELLOW,
-                RED,
+                Text(-30, 350, "-", option_font, Align.CENTER, VAlign.TOP, YELLOW, RED),
                 change_player_count,
                 [game, -1],
             ),
@@ -351,38 +219,19 @@ def main():
                 )
             ),
             Button(
-                30,
-                350,
-                "+",
-                option_font,
-                Align.CENTER,
-                VAlign.TOP,
-                YELLOW,
-                RED,
+                Text(30, 350, "+", option_font, Align.CENTER, VAlign.TOP, YELLOW, RED),
                 change_player_count,
                 [game, 1],
             ),
             Button(
-                -50,
-                600,
-                "Back",
-                medium_font,
-                Align.CENTER,
-                VAlign.TOP,
-                CYAN,
-                RED,
+                Text(
+                    -50, 600, "Back", medium_font, Align.CENTER, VAlign.TOP, CYAN, RED
+                ),
                 change_screen,
                 [game, ScreenID.TITLE],
             ),
             Button(
-                50,
-                600,
-                "Next",
-                medium_font,
-                Align.CENTER,
-                VAlign.TOP,
-                CYAN,
-                RED,
+                Text(50, 600, "Next", medium_font, Align.CENTER, VAlign.TOP, CYAN, RED),
                 change_screen,
                 [game, ScreenID.PLAYER_SETUP],
             ),
@@ -397,37 +246,22 @@ def main():
             Text(-300, 150, "Name:", medium_font, Align.CENTER),
             (
                 player_name_input := Input(
-                    -300,
-                    180,
-                    "Player 1",
-                    option_font,
-                    Align.CENTER,
-                    focus=set_focus,
-                    game=game,
+                    Text(-300, 180, "Player 1", option_font, Align.CENTER),
+                    focus=on_focus,
                 )
             ),
             Text(-300, 215, "Race:", medium_font, Align.CENTER),
             (
                 player_race_input := Input(
-                    -300,
-                    245,
-                    "Human",
-                    option_font,
-                    Align.CENTER,
-                    focus=set_focus,
-                    game=game,
+                    Text(-300, 245, "Human", option_font, Align.CENTER),
+                    focus=on_focus,
                 )
             ),
             Text(-300, 280, "Job:", medium_font, Align.CENTER),
             Button(
-                -410,
-                310,
-                "<",
-                option_font,
-                Align.CENTER,
-                VAlign.TOP,
-                YELLOW,
-                RED,
+                Text(
+                    -410, 310, "<", option_font, Align.CENTER, VAlign.TOP, YELLOW, RED
+                ),
                 change_player_job,
                 [game, -1],
             ),
@@ -437,14 +271,9 @@ def main():
                 )
             ),
             Button(
-                -190,
-                310,
-                ">",
-                option_font,
-                Align.CENTER,
-                VAlign.TOP,
-                YELLOW,
-                RED,
+                Text(
+                    -190, 310, ">", option_font, Align.CENTER, VAlign.TOP, YELLOW, RED
+                ),
                 change_player_job,
                 [game, 1],
             ),
@@ -465,26 +294,14 @@ def main():
                 )
             ),
             Button(
-                -50,
-                600,
-                "Back",
-                medium_font,
-                Align.CENTER,
-                VAlign.TOP,
-                CYAN,
-                RED,
+                Text(
+                    -50, 600, "Back", medium_font, Align.CENTER, VAlign.TOP, CYAN, RED
+                ),
                 setup_next_player,
                 [game, -1],
             ),
             Button(
-                50,
-                600,
-                "Next",
-                medium_font,
-                Align.CENTER,
-                VAlign.TOP,
-                CYAN,
-                RED,
+                Text(50, 600, "Next", medium_font, Align.CENTER, VAlign.TOP, CYAN, RED),
                 setup_next_player,
                 [game, 1],
             ),
@@ -494,26 +311,16 @@ def main():
             Text(0, 50, "Start a game with these players?", medium_font, Align.CENTER),
             (setup_confirm_text := Text(0, 200, "", option_font, Align.CENTER)),
             Button(
-                -50,
-                600,
-                "Back",
-                medium_font,
-                Align.CENTER,
-                VAlign.TOP,
-                CYAN,
-                RED,
+                Text(
+                    -50, 600, "Back", medium_font, Align.CENTER, VAlign.TOP, CYAN, RED
+                ),
                 change_screen,
                 [game, ScreenID.PLAYER_SETUP],
             ),
             Button(
-                50,
-                600,
-                "CONFIRM",
-                medium_font,
-                Align.CENTER,
-                VAlign.TOP,
-                CYAN,
-                RED,
+                Text(
+                    50, 600, "CONFIRM", medium_font, Align.CENTER, VAlign.TOP, CYAN, RED
+                ),
                 change_screen,
                 [game, ScreenID.SETUP_CONFIRM],
             ),
